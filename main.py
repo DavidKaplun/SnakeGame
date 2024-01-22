@@ -14,16 +14,31 @@ gameDisplay.fill(WHITE)
 
 class snake:
     def __init__(self):
-        self.blocks=[head,block1, block2]
+        self.blocks=[block(100,200,"right","head"),block(60,200,"right","normal"), block(20,200,"right","last")]
     def draw_snake(self):
         for block in self.blocks:
-
+            block.move()
+            pygame.draw.rect(gameDisplay, SNAKE_COLOR, [block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE])
+    def turn(self,new_dir):
+        self.blocks[0].turn(new_dir)
 class block:
     def __init__(self,pos_x,pos_y,dir,type):
         self.pos_x=pos_x
         self.pos_y=pos_y
         self.dir=dir
         self.type=type
+    def turn(self,new_dir):
+        self.dir=new_dir
+    def move(self):
+        match self.get_direction():
+            case "right":
+                self.move_right()
+            case "left":
+                self.move_left()
+            case "up":
+                self.move_up()
+            case "down":
+                self.move_down()
     def get_pos_x(self):
         return self.pos_x
     def get_pos_y(self):
@@ -42,19 +57,26 @@ class block:
     def move_left(self):
         self.pos_x-=2
 
-def draw_snake(x):
-    pygame.draw.rect(gameDisplay, SNAKE_COLOR, [x, 200, SQUARE_SIZE, SQUARE_SIZE])
-    pygame.draw.rect(gameDisplay, SNAKE_COLOR, [x+SQUARE_SIZE, 200, SQUARE_SIZE, SQUARE_SIZE])
-    pygame.draw.rect(gameDisplay, SNAKE_COLOR, [x+SQUARE_SIZE*2, 200, SQUARE_SIZE, SQUARE_SIZE])
 
 
 def main():
-    x = 100
+    my_snake=snake()
     while True:
         draw_board()
-        draw_snake(x)
-        x += 1
+        snake.draw_snake(my_snake)
         pygame.time.delay(10)
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                match event.key:
+                    case pygame.K_UP:
+                        my_snake.turn("up")
+                    case pygame.K_DOWN:
+                        my_snake.turn("down")
+                    case pygame.K_RIGHT:
+                        my_snake.turn("right")
+                    case pygame.K_LEFT:
+                        my_snake.turn("left")
         pygame.display.update()
 
 

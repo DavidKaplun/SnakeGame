@@ -1,4 +1,6 @@
 import pygame
+from snake import snake
+from block import block
 pygame.init()
 
 SQUARE_SIZE=40
@@ -12,106 +14,56 @@ gameDisplay = pygame.display.set_mode((1240, 600))
 gameDisplay.fill(WHITE)
 
 
-class snake:
-    def __init__(self):
-        self.turn_positions=[]
-        self.blocks=[block(100,200,"right","head"),block(60,200,"right","normal"), block(20,200,"right","last")]
-    def draw_snake(self):
-        for block in self.blocks:
-            for turn in self.turn_positions:
-                if block.get_pos_x()==turn[0] and block.get_pos_y()==turn[1]:
-                    block.turn(turn[2])
-                    if block.get_type()=="last":
-                        self.turn_positions.remove(turn)
-                    break
-            block.move()
-            pygame.draw.rect(gameDisplay, SNAKE_COLOR, [block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE])
-    def add_turn_pos(self,pos_x,pos_y,dir):
-        self.turn_positions.append([pos_x,pos_y,dir])
-    def get_head(self):
-        return self.blocks[0]
-    def turn(self,new_dir):
-        self.blocks[0].turn(new_dir)
-
-    def get_head_x(self):
-        return self.blocks[0].get_pos_x()
-    def get_head_y(self):
-        return self.blocks[0].get_pos_y()
-
-
 def main():
+    global my_snake
     my_snake=snake()
     while True:
         draw_board()
-        snake.draw_snake(my_snake)
+        my_snake.move()
+        draw_snake()
         pygame.time.delay(10)
-        events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                match event.key:
-                    case pygame.K_UP:
-                        my_snake.turn("up")
-                        my_snake.add_turn_pos(my_snake.get_head_x(),my_snake.get_head_y(),"up")
-                    case pygame.K_DOWN:
-                        my_snake.turn("down")
-                        my_snake.add_turn_pos(my_snake.get_head_x(),my_snake.get_head_y(),"down")
-                    case pygame.K_RIGHT:
-                        my_snake.turn("right")
-                        my_snake.add_turn_pos(my_snake.get_head_x(), my_snake.get_head_y(), "right")
-                    case pygame.K_LEFT:
-                        my_snake.turn("left")
-                        my_snake.add_turn_pos(my_snake.get_head_x(), my_snake.get_head_y(), "left")
+        check_buttons_pressed()
         pygame.display.update()
 
+def check_buttons_pressed():
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.KEYDOWN:
+            respond_to_button_pressed(event.key)
 
+def opposite_directions(cur_dir,new_dir):
+    match cur_dir:
+        case "up":
+            return new_dir=="down"
+        case "down":
+            return new_dir == "up"
+        case "right":
+            return new_dir == "left"
+        case "left":
+            return new_dir == "right"
+def respond_to_button_pressed(button_pressed):
+    cur_dir = my_snake.get_direction()
+    new_dir=""
+    match button_pressed:
+        case pygame.K_UP:
+            new_dir = "up"
+        case pygame.K_DOWN:
+            new_dir = "down"
+        case pygame.K_RIGHT:
+            new_dir = "right"
+        case pygame.K_LEFT:
+            new_dir = "left"
+        case _:
+            return
 
+    if not opposite_directions(cur_dir,new_dir):
+        my_snake.turn(new_dir)
+        my_snake.add_turn_pos(my_snake.get_head_x(), my_snake.get_head_y(), new_dir)
 
-
-
-
-
-
-
-
-
-
-class block:
-    def __init__(self,pos_x,pos_y,dir,type):
-        self.pos_x=pos_x
-        self.pos_y=pos_y
-        self.dir=dir
-        self.type=type
-    def turn(self,new_dir):
-        self.dir=new_dir
-    def move(self):
-        match self.get_direction():
-            case "right":
-                self.move_right()
-            case "left":
-                self.move_left()
-            case "up":
-                self.move_up()
-            case "down":
-                self.move_down()
-    def get_pos_x(self):
-        return self.pos_x
-    def get_pos_y(self):
-        return self.pos_y
-    def get_direction(self):
-        return self.dir
-    def get_type(self):
-        return self.type
-
-    def move_up(self):
-        self.pos_y-=2
-    def move_down(self):
-        self.pos_y+=2
-    def move_right(self):
-        self.pos_x+=2
-    def move_left(self):
-        self.pos_x-=2
-
-
+def draw_snake():
+    blocks=my_snake.get_blocks()
+    for block in blocks:
+        pygame.draw.rect(gameDisplay, SNAKE_COLOR, [block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE])
 
 def draw_board():
     color = 0

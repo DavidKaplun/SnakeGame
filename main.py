@@ -21,9 +21,9 @@ def main():
         draw_board()
         my_snake.move()
         draw_snake()
-        pygame.time.delay(10)
         check_buttons_pressed()
         pygame.display.update()
+        pygame.time.delay(10)
 
 def check_buttons_pressed():
     events = pygame.event.get()
@@ -57,8 +57,26 @@ def respond_to_button_pressed(button_pressed):
             return
 
     if not opposite_directions(cur_dir,new_dir):
-        my_snake.turn(new_dir)
-        my_snake.add_turn_pos(my_snake.get_head_x(), my_snake.get_head_y(), new_dir)
+        turn_pos_x,turn_pos_y=get_turn_pos(my_snake.get_head_x(),my_snake.get_head_y(),cur_dir,new_dir)
+        my_snake.add_turn_pos(turn_pos_x, turn_pos_y, new_dir)
+
+def get_turn_pos(head_x,head_y,cur_dir,turn_dir):
+    pos_x,pos_y=0,0
+    if turn_dir=="up" or turn_dir=="down":
+        pos_y=head_y
+        if cur_dir=="left":
+            head_x-=SQUARE_SIZE
+        else:
+            head_x+=SQUARE_SIZE
+        pos_x=(head_x//SQUARE_SIZE)*SQUARE_SIZE
+    else:
+        if cur_dir=="down":
+            head_y+=SQUARE_SIZE
+        else:
+            head_y-=SQUARE_SIZE
+        pos_y = (head_y // SQUARE_SIZE) * SQUARE_SIZE
+        pos_x = head_x
+    return pos_x,pos_y
 
 def draw_snake():
     blocks=my_snake.get_blocks()

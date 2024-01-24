@@ -1,5 +1,5 @@
 import pygame
-from snake import snake
+from snake import *
 from block import block
 pygame.init()
 
@@ -31,16 +31,7 @@ def check_buttons_pressed():
         if event.type == pygame.KEYDOWN:
             respond_to_button_pressed(event.key)
 
-def opposite_directions(cur_dir,new_dir):
-    match cur_dir:
-        case "up":
-            return new_dir=="down"
-        case "down":
-            return new_dir == "up"
-        case "right":
-            return new_dir == "left"
-        case "left":
-            return new_dir == "right"
+
 def respond_to_button_pressed(button_pressed):
     cur_dir = my_snake.get_direction()
     new_dir=""
@@ -56,27 +47,7 @@ def respond_to_button_pressed(button_pressed):
         case _:
             return
 
-    if not opposite_directions(cur_dir,new_dir):
-        turn_pos_x,turn_pos_y=get_turn_pos(my_snake.get_head_x(),my_snake.get_head_y(),cur_dir,new_dir)
-        my_snake.add_turn_pos(turn_pos_x, turn_pos_y, new_dir)
-
-def get_turn_pos(head_x,head_y,cur_dir,turn_dir):
-    pos_x,pos_y=0,0
-    if turn_dir=="up" or turn_dir=="down":
-        pos_y=head_y
-        if cur_dir=="left":
-            head_x-=SQUARE_SIZE
-        else:
-            head_x+=SQUARE_SIZE
-        pos_x=(head_x//SQUARE_SIZE)*SQUARE_SIZE
-    else:
-        if cur_dir=="down":
-            head_y+=SQUARE_SIZE
-        else:
-            head_y-=SQUARE_SIZE
-        pos_y = (head_y // SQUARE_SIZE) * SQUARE_SIZE
-        pos_x = head_x
-    return pos_x,pos_y
+    my_snake.add_turn(new_dir)
 
 def draw_snake():
     blocks=my_snake.get_blocks()

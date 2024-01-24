@@ -1,4 +1,4 @@
-
+SQUARE_SIZE=40
 class block:
     def __init__(self,pos_x,pos_y,dir,type):
         self.pos_x=pos_x

@@ -19,6 +19,7 @@ def main():
     global my_snake
     my_snake=snake()
     apple = create_apple()
+    prev_dir=""
     while True:
         draw_board()
         draw_snake()
@@ -26,11 +27,17 @@ def main():
             apple=create_apple()
         draw_apple(apple[0],apple[1])
         if snake_eating_apple(apple[0],apple[1]):
+            prev_dir = my_snake.get_blocks()[-1].get_direction()
+            my_snake.grow()
             apple=-1
             score+=1
         check_buttons_pressed()
         pygame.display.update()
         my_snake.move()
+
+        if my_snake.blocks[-1].get_direction()=="":
+            if distance_between_blocks(my_snake.blocks[-2],my_snake.blocks[-1])>=SQUARE_SIZE:
+                my_snake.blocks[-1].turn(prev_dir)
         pygame.time.delay(10)
 
 def snake_eating_apple(apple_x,apple_y):

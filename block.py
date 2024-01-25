@@ -5,6 +5,7 @@ class block:
         self.pos_y=pos_y
         self.dir=dir
         self.type=type
+
     def turn(self,new_dir):
         self.dir=new_dir
     def move(self):

@@ -1,4 +1,6 @@
 from block import *
+from math import sqrt,pow
+from copy import copy
 class snake:
     def __init__(self):
         self.turn_sequence=[]
@@ -6,6 +8,12 @@ class snake:
         self.blocks=[block(100,200,"right","head"),block(60,200,"right","normal"), block(20,200,"right","last")]
     def get_blocks(self):
         return self.blocks
+
+    def grow(self):
+        new_block=copy(self.blocks[-1])
+        self.blocks[-1].type="normal"
+        new_block.dir=""
+        self.blocks.append(new_block)
 
     def move(self):
         for cur_turn in self.turn_sequence:
@@ -42,6 +50,8 @@ class snake:
     def get_direction(self):
         return self.blocks[0].get_direction()
 
+def distance_between_blocks(block1,block2):
+    return abs(block1.get_pos_x()-block2.get_pos_x())+abs(block1.get_pos_y()-block2.get_pos_y())
 
 def opposite_directions(cur_dir,new_dir):
     match cur_dir:

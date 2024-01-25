@@ -1,6 +1,6 @@
 import pygame
 from snake import *
-from block import block
+from random import randint
 pygame.init()
 
 SQUARE_SIZE=40
@@ -9,7 +9,7 @@ BOARD_HEIGHT=15
 WHITE,BLACK= (98,255,92),(69,232,63)
 
 SNAKE_COLOR=(30,144,255)
-
+APPLE_COLOR=(255,0,0)
 gameDisplay = pygame.display.set_mode((1240, 600))
 gameDisplay.fill(WHITE)
 
@@ -17,14 +17,29 @@ gameDisplay.fill(WHITE)
 def main():
     global my_snake
     my_snake=snake()
+    apple = create_apple()
     while True:
         draw_board()
         my_snake.move()
         draw_snake()
+        while apple==-1:
+            apple=create_apple()
+        draw_apple(apple[0],apple[1])
         check_buttons_pressed()
         pygame.display.update()
         pygame.time.delay(10)
 
+def create_apple():
+    snake_blocks=my_snake.get_blocks()
+    apple_x=randint(0,BOARD_LENGTH)*SQUARE_SIZE
+    apple_y=randint(0,BOARD_HEIGHT)*SQUARE_SIZE
+    for block in snake_blocks:
+        if block.get_pos_x()==apple_x and block.get_pos_y()==apple_y:
+            return -1
+    return apple_x,apple_y
+
+def draw_apple(apple_x,apple_y):
+    pygame.draw.rect(gameDisplay, APPLE_COLOR, [apple_x, apple_y, SQUARE_SIZE, SQUARE_SIZE])
 def check_buttons_pressed():
     events = pygame.event.get()
     for event in events:

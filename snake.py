@@ -15,7 +15,7 @@ class snake:
                 new_dir = self.turn_sequence.pop(0)
                 if not opposite_directions(self.get_direction(),new_dir):
                     self.turn(new_dir)
-                    self.turn_positions.append([cur_head_x,cur_head_y,new_dir])
+                    self.turn_positions.append([cur_head_x,cur_head_y,new_dir])#fix this shit later
                     break
 
         for block in self.blocks:

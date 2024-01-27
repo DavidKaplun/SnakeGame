@@ -1,5 +1,4 @@
 from block import *
-from math import sqrt,pow
 from copy import copy
 class snake:
     def __init__(self):

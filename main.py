@@ -10,9 +10,13 @@ WHITE,BLACK= (98,255,92),(69,232,63)
 
 SNAKE_COLOR=(30,144,255)
 APPLE_COLOR=(255,0,0)
+WALL_COLOR=(101,53,15)
+
 gameDisplay = pygame.display.set_mode((1240, 600))
 gameDisplay.fill(WHITE)
 
+HORIZONTAL=1
+VERTICAL=2
 
 def main():
     score=0
@@ -40,6 +44,8 @@ def main():
                 my_snake.blocks[-1].turn(prev_dir)
         pygame.time.delay(10)
 
+
+
 def snake_eating_apple(apple_x,apple_y):
     snake_head=my_snake.get_head()
     apple_rect=pygame.Rect(apple_x,apple_y,SQUARE_SIZE,SQUARE_SIZE)
@@ -53,7 +59,7 @@ def create_apple():
         return -1
     return apple_x,apple_y
 
-def apple_inside_snake(apple_x,apple_y):
+def apple_inside_snake(apple_x,apple_y):#change it to block inside snake
     apple_rect = pygame.Rect(apple_x, apple_y, SQUARE_SIZE, SQUARE_SIZE)
     snake_blocks = my_snake.get_blocks()
     for block in snake_blocks:

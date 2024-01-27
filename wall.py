@@ -16,54 +16,55 @@ def chose_wall_type(apple_cords):
         return "up"
 
 def generate_wall(apple_cords):
+    apple_x,apple_y=apple_cords[0],apple_cords[1]
     wall_type=chose_wall_type(apple_cords)
     wall=[]
     match wall_type:
         case "up":
-            first_point = [apple_cords[0] + 2 * SQUARE_SIZE, apple_cords[1] - 2 * SQUARE_SIZE]
-            x, y = first_point[0], first_point[1]
+            first_point = [apple_x + 2 * SQUARE_SIZE, apple_y - 2 * SQUARE_SIZE]
+            cur_point_x, cur_point_y = first_point[0], first_point[1]
             for z in range(4):
-                option_to_expand = gen_options(x, y, "left")
+                option_to_expand = gen_options(cur_point_x, cur_point_y, "left")
                 new_block = chose(option_to_expand)
                 if valid(new_block):
                     wall.append(new_block)
-                    x, y = new_block[0], new_block[1]
+                    cur_point_x, cur_point_y = new_block[0], new_block[1]
                 else:
                     break
 
         case "down":
             first_point = [apple_cords[0] - 2 * SQUARE_SIZE, apple_cords[1] + 2 * SQUARE_SIZE]
-            x, y = first_point[0], first_point[1]
+            cur_point_x, cur_point_y = first_point[0], first_point[1]
             for z in range(4):
-                option_to_expand = gen_options(x, y, "right")
+                option_to_expand = gen_options(cur_point_x, cur_point_y, "right")
                 new_block = chose(option_to_expand)
                 if valid(new_block):
                     wall.append(new_block)
-                    x, y = new_block[0], new_block[1]
+                    cur_point_x, cur_point_y = new_block[0], new_block[1]
                 else:
                     break
 
         case "left":
             first_point=[apple_cords[0]-2*SQUARE_SIZE, apple_cords[1]+2*SQUARE_SIZE]
-            x,y=first_point[0],first_point[1]
+            cur_point_x, cur_point_y=first_point[0],first_point[1]
             for z in range(4):
-                option_to_expand=gen_options(x,y,"up")
+                option_to_expand=gen_options(cur_point_x, cur_point_y,"up")
                 new_block=chose(option_to_expand)
                 if valid(new_block):
                     wall.append(new_block)
-                    x,y=new_block[0],new_block[1]
+                    cur_point_x, cur_point_y=new_block[0],new_block[1]
                 else:
                     break
 
         case "right":
             first_point = [apple_cords[0] + 2 * SQUARE_SIZE, apple_cords[1] - 2 * SQUARE_SIZE]
-            x, y = first_point[0], first_point[1]
+            cur_point_x, cur_point_y = first_point[0], first_point[1]
             for z in range(4):
-                option_to_expand = gen_options(x, y, "down")
+                option_to_expand = gen_options(cur_point_x, cur_point_y, "down")
                 new_block = chose(option_to_expand)
                 if new_block!=NO_VALID_OPTIONS:
                     wall.append(new_block)
-                    x, y = new_block[0], new_block[1]
+                    cur_point_x, cur_point_y = new_block[0], new_block[1]
                 else:
                     break
     return wall

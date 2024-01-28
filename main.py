@@ -1,6 +1,7 @@
 import pygame
 from snake import *
 from random import randint
+from block import block
 pygame.init()
 
 SQUARE_SIZE=40
@@ -18,6 +19,9 @@ gameDisplay.fill(WHITE)
 HORIZONTAL=1
 VERTICAL=2
 
+APPLE_INSIDE_SNAKE=-1
+EATEN_APPLE=-2
+
 def main():
     score=0
     global my_snake
@@ -27,22 +31,22 @@ def main():
     while True:
         draw_board()
         draw_snake()
-        while apple==-1:
+        while apple==APPLE_INSIDE_SNAKE or apple==EATEN_APPLE:
             apple=create_apple()
-        draw_apple(apple[0],apple[1])
-        if snake_eating_apple(apple[0],apple[1]):
+        draw_apple(apple.get_pos_x(),apple.get_pos_y())
+        if snake_eating_apple(apple.get_pos_x(),apple.get_pos_y()):
             prev_dir = my_snake.get_blocks()[-1].get_direction()
             my_snake.grow()
-            apple=-1
+            apple=EATEN_APPLE
             score+=1
         check_buttons_pressed()
         pygame.display.update()
         my_snake.move()
 
         if my_snake.blocks[-1].get_direction()=="":
-            if distance_between_blocks(my_snake.blocks[-2],my_snake.blocks[-1])>=SQUARE_SIZE:
+            if distance_between_blocks(my_snake.blocks[-2],my_snake.blocks[-1])>=SQUARE_SIZE:#fix this horseshit
                 my_snake.blocks[-1].turn(prev_dir)
-        pygame.time.delay(10)
+        pygame.time.delay(10)#add constant
 
 
 
@@ -56,14 +60,14 @@ def create_apple():
     apple_x=randint(0,BOARD_LENGTH-1)*SQUARE_SIZE
     apple_y=randint(0,BOARD_HEIGHT-1)*SQUARE_SIZE
     if apple_inside_snake(apple_x,apple_y):
-        return -1
-    return apple_x,apple_y
+        return APPLE_INSIDE_SNAKE
+    return block(apple_x,apple_y)#should return a block
 
 def apple_inside_snake(apple_x,apple_y):#change it to block inside snake
     apple_rect = pygame.Rect(apple_x, apple_y, SQUARE_SIZE, SQUARE_SIZE)
     snake_blocks = my_snake.get_blocks()
-    for block in snake_blocks:
-        block_rect=pygame.Rect(block.get_pos_x(),block.get_pos_y(),SQUARE_SIZE,SQUARE_SIZE)
+    for snkblock in snake_blocks:
+        block_rect=pygame.Rect(snkblock.get_pos_x(),snkblock.get_pos_y(),SQUARE_SIZE,SQUARE_SIZE)
         if apple_rect.colliderect(block_rect):
             return True
     return False

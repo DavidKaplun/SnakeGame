@@ -1,10 +1,11 @@
-from block import *
+from snake_block import snake_block
 from copy import copy
+from constants import SQUARE_SIZE
 class snake:
     def __init__(self):
         self.turn_sequence=[]
         self.turn_positions=[]
-        self.blocks=[block(100,200,"right","head"),block(60,200,"right","normal"), block(20,200,"right","last")]
+        self.blocks=[snake_block(100,200,"right","head"),snake_block(60,200,"right","normal"), snake_block(20,200,"right","last")]
     def get_blocks(self):
         return self.blocks
 
@@ -27,7 +28,7 @@ class snake:
 
         for block in self.blocks:
             for turn in self.turn_positions:
-                if block.get_pos_x()==turn[0] and block.get_pos_y()==turn[1]:
+                if block.get_pos_x()==turn[0] and block.get_pos_y()==turn[1]:#there has to be turn x and turn y instead
                     block.turn(turn[2])
                     if block.get_type()=="last":
                         self.turn_positions.pop(0)

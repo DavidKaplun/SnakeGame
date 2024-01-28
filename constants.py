@@ -1,14 +1,30 @@
-#sizes constants
+#sizes
 SQUARE_SIZE=40
 BOARD_LENGTH=15
 BOARD_HEIGHT=15
-WHITE,BLACK= (98,255,92),(69,232,63)
+SCREEN_WIDTH=1240
+SCREEN_HEIGHT=600
 
-#color constants
+#colors
+WHITE,BLACK= (98,255,92),(69,232,63)
 SNAKE_COLOR=(30,144,255)
 APPLE_COLOR=(255,0,0)
 WALL_COLOR=(101,53,15)
 
-#wall type constants
+#wall types
 HORIZONTAL=1
 VERTICAL=2
+
+#apple state
+APPLE_INSIDE_SNAKE=-1
+EATEN_APPLE=-2
+
+#snake speed
+SPEED=2
+
+#time
+TIME_DELAY=10
+
+#index
+FIRST=0
+LAST=-1

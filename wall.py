@@ -82,16 +82,9 @@ def chose(options):
         return INVALID_BLOCK
     return  random.choice(valid_options)
 
-def valid(self,option):
+def valid(option):
     return not block_inside_snake(option[0],option[1]) and not block_inside_apple(option[0],option[1])
-def block_inside_snake(block_x, block_y):  # change it to block_rect instaed of x,y
-    block_rect = pygame.Rect(block_x, block_y, SQUARE_SIZE, SQUARE_SIZE)
-    snake_blocks = my_snake.get_blocks()
-    for snake_block in snake_blocks:
-        snake_block_rect = pygame.Rect(snake_block.get_pos_x(), snake_block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE)#should be a getter to the already created pygame rectangle
-        if block_rect.colliderect(snake_block_rect):
-            return True
-    return False
+
 
 def block_inside_apple(block_x,block_y,apple_cords):#should be block rect and apple rect
     return block_x==apple_cords[0] and block_y==apple_cords[1]

@@ -1,5 +1,6 @@
 from block import block
-class snake_block(block):#this should be the snake block which inherits block class
+from constants import SPEED
+class snake_block(block):
     def __init__(self,pos_x,pos_y,dir,type):
         block.__init__(self,pos_x,pos_y)
         self.dir=dir
@@ -23,10 +24,10 @@ class snake_block(block):#this should be the snake block which inherits block cl
         return self.type
 
     def move_up(self):
-        self.pos_y-=2
+        self.pos_y-=SPEED
     def move_down(self):
-        self.pos_y+=2
+        self.pos_y+=SPEED
     def move_right(self):
-        self.pos_x+=2
+        self.pos_x+=SPEED
     def move_left(self):
-        self.pos_x-=2
+        self.pos_x-=SPEED

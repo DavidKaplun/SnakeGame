@@ -54,11 +54,11 @@ def create_apple():
         return APPLE_INSIDE_SNAKE
     return block(apple_x,apple_y)
 
-def block_inside_snake(block_x, block_y):  # change it to block_rect instaed of x,y
+def block_inside_snake(block_x, block_y):
     block_rect = pygame.Rect(block_x, block_y, SQUARE_SIZE, SQUARE_SIZE)
     snake_blocks = my_snake.get_blocks()
     for snake_block in snake_blocks:
-        snake_block_rect = pygame.Rect(snake_block.get_pos_x(), snake_block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE)#should be a getter to the already created pygame rectangle
+        snake_block_rect = pygame.Rect(snake_block.get_pos_x(), snake_block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE)
         if block_rect.colliderect(snake_block_rect):
             return True
     return False

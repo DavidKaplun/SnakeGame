@@ -16,7 +16,7 @@ def main():
     prev_dir=""
     wall = generate_wall()
 
-    while True:
+    while snake_is_alive(wall):
         if snake_eating_apple():
             prev_dir = my_snake.get_last_block().get_direction()
             my_snake.grow()
@@ -40,7 +40,26 @@ def main():
                 last_snake_block.turn(prev_dir)
 
         pygame.time.delay(TIME_DELAY)
+    print("The snake died")
 
+def snake_is_alive(wall):
+    snake_head=my_snake.get_head()
+    head_rect=pygame.Rect(snake_head.get_pos_x(),snake_head.get_pos_y(),SQUARE_SIZE,SQUARE_SIZE)
+    for block in my_snake.get_blocks()[2:]:
+        block_rect=pygame.Rect(block.get_pos_x(),block.get_pos_y(),SQUARE_SIZE,SQUARE_SIZE)
+        if head_rect.colliderect(block_rect):
+            return False
+    if outside_board(snake_head) or snake_is_touching_wall(head_rect,wall):
+        return False
+    return True
+
+def snake_is_touching_wall(head_rect,wall):
+    if wall!=INCONSTRACTABLE:
+        for block in wall:
+            block_rect = pygame.Rect(block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE)
+            if head_rect.colliderect(block_rect):
+                return True
+    return False
 def snake_eating_apple():
     snake_head=my_snake.get_head()
     apple_rect=pygame.Rect(apple.get_pos_x(),apple.get_pos_y(),SQUARE_SIZE,SQUARE_SIZE)

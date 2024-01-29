@@ -3,7 +3,7 @@ from snake import snake
 from random import randint
 from block import block
 from constants import *
-
+from wall import *
 pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
@@ -14,13 +14,17 @@ def main():
     my_snake=snake()
     apple = create_apple()
     prev_dir=""
+    wall=[]
     while True:
         draw_board()
         draw_snake()
 
         while apple==APPLE_INSIDE_SNAKE or apple==EATEN_APPLE:
             apple=create_apple()
+            wall = generate_wall(apple, my_snake.get_head())
+
         draw_apple(apple.get_pos_x(),apple.get_pos_y())
+        draw_wall(wall)
 
 
         if snake_eating_apple(apple.get_pos_x(),apple.get_pos_y()):
@@ -39,7 +43,12 @@ def main():
                 last_snake_block.turn(prev_dir)
         pygame.time.delay(TIME_DELAY)
 
-
+def draw_wall(wall):
+    count=0
+    for block in wall:
+        count+=1
+        pygame.draw.rect(gameDisplay, WALL_COLOR, [block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE])
+    print(count)
 
 def snake_eating_apple(apple_x,apple_y):
     snake_head=my_snake.get_head()

@@ -10,23 +10,23 @@ gameDisplay.fill(WHITE)
 
 def main():
     score=0
-    global my_snake
-    global apple
+    global my_snake,apple
     my_snake=snake()
     apple = create_apple()
     prev_dir=""
     wall=[]
     while True:
-        draw_board()
-        draw_snake()
-
         while apple==APPLE_INSIDE_SNAKE or apple==EATEN_APPLE:
             apple=create_apple()
+            wall=[]
+
+        if wall==[]:
             wall = generate_wall()
 
+        draw_board()
+        draw_snake()
         draw_apple()
         draw_wall(wall)
-
 
         if snake_eating_apple():
             prev_dir = my_snake.get_last_block().get_direction()
@@ -42,6 +42,8 @@ def main():
         if last_snake_block.get_direction()=="":
             if distance_between_blocks(my_snake.blocks[-2],last_snake_block)>=SQUARE_SIZE:
                 last_snake_block.turn(prev_dir)
+
+
         pygame.time.delay(TIME_DELAY)
 
 def snake_eating_apple():
@@ -132,7 +134,7 @@ def chose_wall_type():
             return "down"
         return "up"
 
-def generate_wall():
+def generate_wall():#clean up this function
     apple_x,apple_y=apple.get_pos_x(),apple.get_pos_y()
     wall_type=chose_wall_type()
     wall=[]

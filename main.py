@@ -3,7 +3,7 @@ from snake import snake
 import random
 from block import block
 from constants import *
-from wall import *
+import copy
 pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
@@ -12,37 +12,32 @@ def main():
     score=0
     global my_snake,apple
     my_snake=snake()
-    apple = create_apple()
+    apple=create_apple()
     prev_dir=""
-    wall=[]
+    wall = generate_wall()
+
     while True:
-        while apple==APPLE_INSIDE_SNAKE or apple==EATEN_APPLE:
-            apple=create_apple()
-            wall=[]
-
-        if wall==[]:
-            wall = generate_wall()
-
-        draw_board()
-        draw_snake()
-        draw_apple()
-        draw_wall(wall)
-
         if snake_eating_apple():
             prev_dir = my_snake.get_last_block().get_direction()
             my_snake.grow()
-            apple=EATEN_APPLE
+            apple=create_apple()
+            wall = generate_wall()
             score+=1
 
         pygame.display.update()
         check_buttons_pressed()
         my_snake.move()
 
+
+        draw_board()
+        draw_snake()
+        draw_apple()
+        draw_wall(wall)
+
         last_snake_block=my_snake.get_last_block()
         if last_snake_block.get_direction()=="":
             if distance_between_blocks(my_snake.blocks[-2],last_snake_block)>=SQUARE_SIZE:
                 last_snake_block.turn(prev_dir)
-
 
         pygame.time.delay(TIME_DELAY)
 
@@ -53,14 +48,18 @@ def snake_eating_apple():
     return apple_rect.colliderect(snake_head_rect)
 
 def create_apple():
-    apple_x=random.randint(0,BOARD_LENGTH-1)*SQUARE_SIZE
-    apple_y=random.randint(0,BOARD_HEIGHT-1)*SQUARE_SIZE
-    if block_inside_snake(apple_x,apple_y):
-        return APPLE_INSIDE_SNAKE
-    return block(apple_x,apple_y)
+    apple=INVALID_APPLE
+    while apple == INVALID_APPLE:
+        apple_x=random.randint(0,BOARD_LENGTH-1)*SQUARE_SIZE
+        apple_y=random.randint(0,BOARD_HEIGHT-1)*SQUARE_SIZE
+        apple=block(apple_x,apple_y)
+        if not (block_inside_snake(apple) or distance_between_blocks(apple,my_snake.get_head())<MIN_DIST_BETWEEN_APPLE_AND_SNAKE):
+            return apple
+        apple = INVALID_APPLE
 
-def block_inside_snake(block_x, block_y):
-    block_rect = pygame.Rect(block_x, block_y, SQUARE_SIZE, SQUARE_SIZE)
+
+def block_inside_snake(block):
+    block_rect = pygame.Rect(block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE)
     snake_blocks = my_snake.get_blocks()
     for snake_block in snake_blocks:
         snake_block_rect = pygame.Rect(snake_block.get_pos_x(), snake_block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE)
@@ -116,8 +115,9 @@ def draw_apple():
     pygame.draw.rect(gameDisplay, APPLE_COLOR, [apple.get_pos_x(), apple.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE])
 
 def draw_wall(wall):
-    for block in wall:
-        pygame.draw.rect(gameDisplay, WALL_COLOR, [block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE])
+    if wall!=INCONSTRACTABLE:
+        for block in wall:
+            pygame.draw.rect(gameDisplay, WALL_COLOR, [block.get_pos_x(), block.get_pos_y(), SQUARE_SIZE, SQUARE_SIZE])
 
 #below only the functions related to wall
 
@@ -191,6 +191,8 @@ def generate_wall():#clean up this function
                     cur_point_x,cur_point_y=new_block.get_pos_x(), new_block.get_pos_y()
                 else:
                     break
+    if len(wall)<MIN_WALL_LENGTH:
+        return INCONSTRACTABLE
     return wall
 
 def chose(pos_options):#better name for options
@@ -205,7 +207,7 @@ def chose(pos_options):#better name for options
     return  random.choice(valid_options)
 
 def valid(pos_option):
-    return  not block_inside_snake(pos_option.get_pos_x(),pos_option.get_pos_y()) and not block_inside_apple(pos_option)#fix this later
+    return  not block_inside_snake(pos_option) and not block_inside_apple(pos_option)
 
 
 def block_inside_apple(block):

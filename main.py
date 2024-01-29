@@ -140,55 +140,46 @@ def chose_start_pos(wall_type):
         return block(apple.get_pos_x() + (2*SQUARE_SIZE), apple.get_pos_y() - (2*SQUARE_SIZE))
     return block(apple.get_pos_x() - (2*SQUARE_SIZE), apple.get_pos_y() + (2*SQUARE_SIZE))
 
+def outside_board(block):
+    block_x,block_y=block.get_pos_x(),block.get_pos_y()
+    return block_x<0 or block_y<0 or block_x>(BOARD_LENGTH-1)*SQUARE_SIZE or block_y>(BOARD_LENGTH-1)*SQUARE_SIZE
 
+def build_wall_blocks(starting_block,build_direction,num_of_blocks_to_build):
+    wall=[starting_block]
+    cur_point_x, cur_point_y=starting_block.get_pos_x(),starting_block.get_pos_y()
+
+    for i in range(num_of_blocks_to_build):  # there has to be a constant called wall length
+        option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y, build_direction)  # should get the block not its x and y
+        new_block = chose(option_to_expand)
+
+        if new_block != INVALID_BLOCK:
+            wall.append(new_block)
+            cur_point_x, cur_point_y = new_block.get_pos_x(), new_block.get_pos_y()
+        else:
+            break
+
+    return wall
 def generate_wall():#clean up this function
     apple_x,apple_y=apple.get_pos_x(),apple.get_pos_y()
     wall_type=chose_wall_type()
+
+    start_point = chose_start_pos(wall_type)
+    if not valid(start_point):
+        return INCONSTRACTABLE
+
     wall=[]
-    #there should be a function for deciding the starting point based on apple cords
-    cur_point=chose_start_pos(wall_type)
-    cur_point_x, cur_point_y = cur_point.get_pos_x(), cur_point.get_pos_y()
-    wall.append(cur_point)
     match wall_type:
         case "up":
-            for z in range(WALL_LENGTH-1):#there has to be a constant called wall length
-                option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y, "left")#should get the block not its x and y
-                new_block = chose(option_to_expand)
-                if new_block!=INVALID_BLOCK:
-                    wall.append(new_block)
-                    cur_point_x, cur_point_y = new_block.get_pos_x(), new_block.get_pos_y()
-                else:
-                    break
+            wall=build_wall_blocks(start_point,"left",WALL_LENGTH-1)#the wall_length-1 because we already have 1 block
 
         case "down":
-            for z in range(WALL_LENGTH-1):
-                option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y,"right")  # should get the block not its x and y
-                new_block = chose(option_to_expand)
-                if new_block != INVALID_BLOCK:
-                    wall.append(new_block)
-                    cur_point_x, cur_point_y = new_block.get_pos_x(), new_block.get_pos_y()
-                else:
-                    break
+            wall=build_wall_blocks(start_point,"right",WALL_LENGTH-1)
 
         case "left":
-            for z in range(WALL_LENGTH-1):
-                option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y, "up")  # should get the block not its x and y
-                new_block = chose(option_to_expand)
-                if new_block != INVALID_BLOCK:
-                    wall.append(new_block)
-                    cur_point_x,cur_point_y=new_block.get_pos_x(), new_block.get_pos_y()
-                else:
-                    break
+            wall=build_wall_blocks(start_point,"up",WALL_LENGTH-1)
 
         case "right":
-            for z in range(WALL_LENGTH-1):
-                option_to_expand = gen_new_block_position_options(cur_point_x,cur_point_y,"down")  # should get the block not its x and y
-                new_block = chose(option_to_expand)
-                if new_block != INVALID_BLOCK:
-                    wall.append(new_block)
-                    cur_point_x,cur_point_y=new_block.get_pos_x(), new_block.get_pos_y()
-                else:
-                    break
+            wall=build_wall_blocks(start_point,"down",WALL_LENGTH-1)
 
     if len(wall)<MIN_WALL_LENGTH:
         return INCONSTRACTABLE
@@ -205,8 +196,8 @@ def chose(pos_options):#better name for options
         return INVALID_BLOCK
     return  random.choice(valid_options)
 
-def valid(pos_option):
-    return  not block_inside_snake(pos_option) and not block_inside_apple(pos_option)
+def valid(block):
+    return  not block_inside_snake(block) and not block_inside_apple(block) and not outside_board(block)
 
 
 def block_inside_apple(block):

@@ -134,17 +134,24 @@ def chose_wall_type():
             return "down"
         return "up"
 
+
+def chose_start_pos(wall_type):
+    if wall_type=="up" or wall_type=="right":
+        return block(apple.get_pos_x() + (2*SQUARE_SIZE), apple.get_pos_y() - (2*SQUARE_SIZE))
+    return block(apple.get_pos_x() - (2*SQUARE_SIZE), apple.get_pos_y() + (2*SQUARE_SIZE))
+
+
 def generate_wall():#clean up this function
     apple_x,apple_y=apple.get_pos_x(),apple.get_pos_y()
     wall_type=chose_wall_type()
     wall=[]
     #there should be a function for deciding the starting point based on apple cords
+    cur_point=chose_start_pos(wall_type)
+    cur_point_x, cur_point_y = cur_point.get_pos_x(), cur_point.get_pos_y()
+    wall.append(cur_point)
     match wall_type:
         case "up":
-            cur_point = block(apple_x + (2*SQUARE_SIZE), apple_y - (2*SQUARE_SIZE))
-            cur_point_x, cur_point_y = cur_point.get_pos_x(), cur_point.get_pos_y()
-            wall.append(cur_point)
-            for z in range(4):#there has to be a constant called wall length
+            for z in range(WALL_LENGTH-1):#there has to be a constant called wall length
                 option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y, "left")#should get the block not its x and y
                 new_block = chose(option_to_expand)
                 if new_block!=INVALID_BLOCK:
@@ -154,10 +161,7 @@ def generate_wall():#clean up this function
                     break
 
         case "down":
-            cur_point = block(apple_x - (2*SQUARE_SIZE), apple_y + (2*SQUARE_SIZE))
-            cur_point_x, cur_point_y = cur_point.get_pos_x(), cur_point.get_pos_y()
-            wall.append(cur_point)
-            for z in range(4):  # there has to be a constant called wall length
+            for z in range(WALL_LENGTH-1):
                 option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y,"right")  # should get the block not its x and y
                 new_block = chose(option_to_expand)
                 if new_block != INVALID_BLOCK:
@@ -167,10 +171,7 @@ def generate_wall():#clean up this function
                     break
 
         case "left":
-            cur_point = block(apple_x - (2*SQUARE_SIZE), apple_y + (2*SQUARE_SIZE))
-            cur_point_x, cur_point_y = cur_point.get_pos_x(), cur_point.get_pos_y()
-            wall.append(cur_point)
-            for z in range(4):  # there has to be a constant called wall length
+            for z in range(WALL_LENGTH-1):
                 option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y, "up")  # should get the block not its x and y
                 new_block = chose(option_to_expand)
                 if new_block != INVALID_BLOCK:
@@ -180,10 +181,7 @@ def generate_wall():#clean up this function
                     break
 
         case "right":
-            cur_point = block(apple_x + (2*SQUARE_SIZE), apple_y - (2*SQUARE_SIZE))
-            cur_point_x,cur_point_y=cur_point.get_pos_x(), cur_point.get_pos_y()
-            wall.append(cur_point)
-            for z in range(4):  # there has to be a constant called wall length
+            for z in range(WALL_LENGTH-1):
                 option_to_expand = gen_new_block_position_options(cur_point_x,cur_point_y,"down")  # should get the block not its x and y
                 new_block = chose(option_to_expand)
                 if new_block != INVALID_BLOCK:
@@ -191,6 +189,7 @@ def generate_wall():#clean up this function
                     cur_point_x,cur_point_y=new_block.get_pos_x(), new_block.get_pos_y()
                 else:
                     break
+
     if len(wall)<MIN_WALL_LENGTH:
         return INCONSTRACTABLE
     return wall

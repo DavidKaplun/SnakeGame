@@ -40,7 +40,7 @@ def main():
                 last_snake_block.turn(prev_dir)
 
         pygame.time.delay(TIME_DELAY)
-    print("The snake died")
+    print("The snake died your score is:",score)
 
 def snake_is_alive(wall):
     snake_head=my_snake.get_head()

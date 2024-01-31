@@ -9,7 +9,7 @@ class snake_block(block):
     def turn(self,new_dir):
         self.dir=new_dir
     def move(self):
-        match self.get_direction():
+        match self.dir:
             case "right":
                 self.move_right()
             case "left":
@@ -18,16 +18,12 @@ class snake_block(block):
                 self.move_up()
             case "down":
                 self.move_down()
-    def get_direction(self):
-        return self.dir
-    def get_type(self):
-        return self.type
 
     def move_up(self):
-        self.pos_y-=SPEED
+        self.y-=SPEED
     def move_down(self):
-        self.pos_y+=SPEED
+        self.y+=SPEED
     def move_right(self):
-        self.pos_x+=SPEED
+        self.x+=SPEED
     def move_left(self):
-        self.pos_x-=SPEED
+        self.x-=SPEED

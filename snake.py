@@ -28,9 +28,9 @@ class snake:
 
         for block in self.blocks:
             for turn in self.turn_positions:
-                if block.get_pos_x()==turn[0] and block.get_pos_y()==turn[1]:#there has to be turn x and turn y instead
+                if block.x==turn[0] and block.y==turn[1]:#there has to be turn x and turn y instead
                     block.turn(turn[2])
-                    if block.get_type()=="last":
+                    if block.type=="last":
                         self.turn_positions.pop(FIRST)
                     break
             block.move()
@@ -49,11 +49,11 @@ class snake:
         return self.blocks[LAST]
 
     def get_head_x(self):
-        return self.blocks[FIRST].get_pos_x()
+        return self.blocks[FIRST].x
     def get_head_y(self):
-        return self.blocks[FIRST].get_pos_y()
+        return self.blocks[FIRST].y
     def get_direction(self):
-        return self.blocks[FIRST].get_direction()
+        return self.blocks[FIRST].dir
 
 
 

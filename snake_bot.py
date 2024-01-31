@@ -44,3 +44,6 @@ def decide_turn_dir(block1,block2):
     elif difference_y>0:
         return "up"
     return "down"
+
+def find_shortest_path(grid):
+    pass

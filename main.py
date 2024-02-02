@@ -3,6 +3,7 @@ from snake import snake
 import random
 from block import block
 from constants import *
+from snake_bot import get_directions_to_apple
 import copy
 pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -15,7 +16,7 @@ def main():
     apple=create_apple()
     prev_dir=""
     wall = generate_wall()
-
+    my_snake.turn_sequence=get_directions_to_apple(wall,my_snake,apple)
     while snake_is_alive(wall):
         if snake_eating_apple():
             prev_dir = my_snake.get_last_block().dir
@@ -23,6 +24,7 @@ def main():
             apple=create_apple()
             wall = generate_wall()
             score+=1
+            my_snake.turn_sequence = get_directions_to_apple(wall, my_snake, apple)
 
         pygame.display.update()
         check_buttons_pressed()
@@ -122,12 +124,12 @@ def draw_snake():
 
 def draw_board():#change names
     color = 0
-    for x in range(BOARD_HEIGHT):
-        for y in range(BOARD_LENGTH):
+    for y in range(BOARD_HEIGHT):
+        for x in range(BOARD_LENGTH):
             if color %2 == 0:
-                pygame.draw.rect(gameDisplay, WHITE,[SQUARE_SIZE*y,SQUARE_SIZE*x,SQUARE_SIZE,SQUARE_SIZE])
+                pygame.draw.rect(gameDisplay, WHITE,[SQUARE_SIZE*x,SQUARE_SIZE*y,SQUARE_SIZE,SQUARE_SIZE])
             else:
-                pygame.draw.rect(gameDisplay, BLACK, [SQUARE_SIZE * y, SQUARE_SIZE * x, SQUARE_SIZE, SQUARE_SIZE])
+                pygame.draw.rect(gameDisplay, BLACK, [SQUARE_SIZE * x, SQUARE_SIZE * y, SQUARE_SIZE, SQUARE_SIZE])
             color += 1
 
 def draw_apple():
@@ -167,8 +169,8 @@ def build_wall_blocks(starting_block,build_direction,num_of_blocks_to_build):
     wall=[starting_block]
     cur_point_x, cur_point_y=starting_block.x, starting_block.y
 
-    for i in range(num_of_blocks_to_build):  # there has to be a constant called wall length
-        option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y, build_direction)  # should get the block not its x and y
+    for i in range(num_of_blocks_to_build):
+        option_to_expand = gen_new_block_position_options(cur_point_x, cur_point_y, build_direction)
         new_block = chose(option_to_expand)
 
         if new_block != INVALID_BLOCK:
@@ -178,7 +180,7 @@ def build_wall_blocks(starting_block,build_direction,num_of_blocks_to_build):
             break
 
     return wall
-def generate_wall():#clean up this function
+def generate_wall():
     apple_x,apple_y=apple.x,apple.y
     wall_type=chose_wall_type()
 
@@ -204,7 +206,7 @@ def generate_wall():#clean up this function
         return INCONSTRACTABLE
     return wall
 
-def chose(pos_options):#better name for options
+def chose(pos_options):
     valid_options=[]
     for option in pos_options:
         if valid(option):

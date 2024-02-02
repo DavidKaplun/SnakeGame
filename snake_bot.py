@@ -2,11 +2,25 @@ from constants import *
 import copy
 import heapq
 
-def find_shortest_path(grid):
-    pass
+
+
+
+def convert_block_cords_to_grid_cords(block_x,block_y,snake_direction):#returns row,col
+    match snake_direction:
+        case "up":
+            return block_y//SQUARE_SIZE,block_x//SQUARE_SIZE
+        case "down":
+            return (block_y + SQUARE_SIZE - 1) // SQUARE_SIZE, block_x // SQUARE_SIZE
+        case "right":
+            return block_y // SQUARE_SIZE, (block_x + SQUARE_SIZE - 1) // SQUARE_SIZE
+        case "left":
+            return block_y  // SQUARE_SIZE, block_x // SQUARE_SIZE
+        case "":
+            return block_y//SQUARE_SIZE,block_x//SQUARE_SIZE
 def get_directions_to_apple(wall,snake,apple):
+    snake_head_grid_cords = convert_block_cords_to_grid_cords(snake.get_head_x(), snake.get_head_y() ,snake.get_direction())
     grid=create_grid(wall,snake,apple)
-    path=find_path(grid,((snake.get_head_y()+SQUARE_SIZE-1)//SQUARE_SIZE,(snake.get_head_x()+SQUARE_SIZE-1)//SQUARE_SIZE),(apple.y//SQUARE_SIZE,apple.x//SQUARE_SIZE))
+    path=find_shortest_path(grid,(snake_head_grid_cords[0],snake_head_grid_cords[1]),(apple.y//SQUARE_SIZE,apple.x//SQUARE_SIZE))
     return convert_path_to_directions(path)
 
 def create_grid(wall,snake,apple):
@@ -23,9 +37,11 @@ def add(grid,wall,snake,apple):
     if wall!=INCONSTRACTABLE:
         for block in wall:
             grid[block.y//SQUARE_SIZE][block.x//SQUARE_SIZE]=BARRIER
-    grid[(snake.get_head_y()+SQUARE_SIZE-1)//SQUARE_SIZE][(snake.get_head_x() + SQUARE_SIZE-1)//SQUARE_SIZE]=SNAKE_HEAD
+    snake_head_grid_cords=convert_block_cords_to_grid_cords(snake.get_head_x(),snake.get_head_y(),snake.get_direction())
+    grid[snake_head_grid_cords[0]][snake_head_grid_cords[1]]=SNAKE_HEAD
     for block in snake.get_blocks()[1:]:
-        grid[(block.y+SQUARE_SIZE-1)//SQUARE_SIZE][(block.x+SQUARE_SIZE-1)//SQUARE_SIZE]=BARRIER
+        block_grid_cords=convert_block_cords_to_grid_cords(block.x,block.y,block.dir)
+        grid[block_grid_cords[0]][block_grid_cords[1]]=BARRIER
     return grid
 
 
@@ -45,18 +61,17 @@ def decide_turn_dir(node1,node2):
 
 def convert_path_to_directions(path):
     directions=[]
-
-    cur_node = path[0]
-    for node in path[1:]:
-        directions.append(decide_turn_dir(cur_node,node))
-        cur_node=copy.copy(node)
-
+    if path!=None:
+        cur_node = path[0]
+        for node in path[1:]:
+            directions.append(decide_turn_dir(cur_node,node))
+            cur_node=copy.copy(node)
     return directions
 
-def find_path(grid, start, goal):
+def find_shortest_path(grid, start, goal):
     open_set = []
     closed_set = set()
-    print(start,goal)
+
     start_node = GridNode(*start)
     goal_node = GridNode(*goal)
 
@@ -65,8 +80,7 @@ def find_path(grid, start, goal):
     start_node.total_cost = start_node.cost_from_start + start_node.heuristic_cost_to_goal
 
     heapq.heappush(open_set, start_node)
-    for row in grid:
-        print(row)
+
     while open_set:
         current_node = heapq.heappop(open_set)
         if current_node.row == goal_node.row and current_node.col == goal_node.col:

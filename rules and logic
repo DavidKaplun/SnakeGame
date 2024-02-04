@@ -4,8 +4,8 @@
 4.1 apple = 1 point (for every point a snake gets 1 block longer)
 5.when 1 of the players eats an apple then the apple
 reappears in a different place on BOTH players boards
-6.every time a new apple appears, so is a wall of 3-7 blocks
+6.every time a new apple appears, so is a wall of 3-5 blocks
 between the snake and the apple itself
 7.if a players hits a wall or himself then he loses,
 regardless of how many points he has
-8.first one to get to length 33, wins
+8.first one to get to score 30, wins

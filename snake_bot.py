@@ -2,10 +2,7 @@ from constants import *
 import copy
 import heapq
 
-
-
-
-def convert_block_cords_to_grid_cords(block_x,block_y,snake_direction):#returns row,col
+def convert_block_cords_to_grid_cords(block_x,block_y,snake_direction):
     match snake_direction:
         case "up":
             return block_y//SQUARE_SIZE,block_x//SQUARE_SIZE

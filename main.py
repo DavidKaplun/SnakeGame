@@ -9,6 +9,45 @@ pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
 
+
+def draw_main_menu():
+    FIRST_BUTTON_Y_OFFSET=3*SQUARE_SIZE
+    BUTTONS_X_OFFSET=15*SQUARE_SIZE
+
+    BUTTONS_LENGTH=6*SQUARE_SIZE
+    BUTTONS_HEIGHT=2*SQUARE_SIZE
+
+    DISTANCE_BETWEEN_BUTTONS=SQUARE_SIZE
+
+    NUM_OF_BUTTONS=5
+
+    BUTTON_COLOR=(255,0,0)
+
+    cur_button_y=FIRST_BUTTON_Y_OFFSET
+    for button in range(NUM_OF_BUTTONS):
+        pygame.draw.rect(gameDisplay,BUTTON_COLOR,BUTTONS_X_OFFSET,cur_button_y,BUTTONS_LENGTH,BUTTONS_HEIGHT)
+        cur_button_y+=DISTANCE_BETWEEN_BUTTONS
+
+    buttons_texts=["Single Player","Multiplayer","My Stats","Rules","Exit"]
+    text_y_offset=5
+    text_x_offset=2*SQUARE_SIZE
+
+    font_size=60
+    font = pygame.font.Font('freesansbold.ttf', font_size)
+    for text in buttons_texts:
+        screen_text = font.render(text, True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center()
+        gameDisplay.blit(screen_text,textRect)
+
+
+
+
+
+
+
+
+
 def main():
     score=0
     global my_snake,apple

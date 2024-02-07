@@ -48,16 +48,17 @@ def create_texts_for_buttons_in_menu():
     return
 
 def draw_background_recktangle():
-    return
-def draw_rules_screen:
-    background_offset_x=15*SQUARE_SIZE
-    background_offset_y=4*SQUARE_SIZE
+    background_offset_x = 15 * SQUARE_SIZE
+    background_offset_y = 4 * SQUARE_SIZE
 
-    background_hieght=15*SQUARE_SIZE
-    background_width=6*SQUARE_SIZE
+    background_hieght = 15 * SQUARE_SIZE
+    background_width = 6 * SQUARE_SIZE
 
-    background_recktangle=pygame.draw.rect(gameDisplay,BLACK,background_offset_x,background_offset_y,background_hieght,background_width)
+    background_recktangle = pygame.draw.rect(gameDisplay, BLACK, background_offset_x, background_offset_y, background_hieght, background_width)
 
+def draw_rules_screen():
+    draw_background_recktangle()
+    rules_text="1.board is 15x15\n2.screen size of game is 31x15\n3.snake starts 3 blocks long\n4.1 apple = 1 point (for every point a snake gets 1 block longer)\n5.when 1 of the players eats an apple then the apple reappears in a different place on BOTH players boards\n6.every time a new apple appears, so is a wall of 3-5 blocks\nbetween the snake and the apple itself\n7.if a players hits a wall or himself then he loses,\nregardless of how many points he has\n8.first one to get to score 30, wins"
 
 def draw_stats_screen():
     return

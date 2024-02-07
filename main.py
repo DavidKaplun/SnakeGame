@@ -34,13 +34,33 @@ def draw_main_menu():
 
     font_size=60
     font = pygame.font.Font('freesansbold.ttf', font_size)
+    cur_text_y=FIRST_BUTTON_Y_OFFSET+SQUARE_SIZE
     for text in buttons_texts:
-        screen_text = font.render(text, True, (0, 0, 0))
+        txt = font.render(text, True, (0, 0, 0))
         textRect = text.get_rect()
-        textRect.center()
-        gameDisplay.blit(screen_text,textRect)
+        textRect.center(BUTTONS_X_OFFSET+text_x_offset,cur_text_y)
+        gameDisplay.blit(txt,textRect)
+        cur_text_y+=BUTTONS_HEIGHT+DISTANCE_BETWEEN_BUTTONS
+
+def create_buttons_for_menu():
+    return
+def create_texts_for_buttons_in_menu():
+    return
+
+def draw_background_recktangle():
+    return
+def draw_rules_screen:
+    background_offset_x=15*SQUARE_SIZE
+    background_offset_y=4*SQUARE_SIZE
+
+    background_hieght=15*SQUARE_SIZE
+    background_width=6*SQUARE_SIZE
+
+    background_recktangle=pygame.draw.rect(gameDisplay,BLACK,background_offset_x,background_offset_y,background_hieght,background_width)
 
 
+def draw_stats_screen():
+    return
 
 
 

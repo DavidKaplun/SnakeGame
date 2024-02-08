@@ -37,7 +37,7 @@ def draw_main_menu():
     cur_text_y=FIRST_BUTTON_Y_OFFSET+SQUARE_SIZE
     for text in buttons_texts:
         txt = font.render(text, True, (0, 0, 0))
-        textRect = text.get_rect()
+        textRect = txt.get_rect()
         textRect.center(BUTTONS_X_OFFSET+text_x_offset,cur_text_y)
         gameDisplay.blit(txt,textRect)
         cur_text_y+=BUTTONS_HEIGHT+DISTANCE_BETWEEN_BUTTONS
@@ -60,13 +60,34 @@ def draw_rules_screen():
     draw_background_recktangle()
     rules_text="1.board is 15x15\n2.screen size of game is 31x15\n3.snake starts 3 blocks long\n4.1 apple = 1 point (for every point a snake gets 1 block longer)\n5.when 1 of the players eats an apple then the apple reappears in a different place on BOTH players boards\n6.every time a new apple appears, so is a wall of 3-5 blocks\nbetween the snake and the apple itself\n7.if a players hits a wall or himself then he loses,\nregardless of how many points he has\n8.first one to get to score 30, wins"
 
+    background_offset_x = 15 * SQUARE_SIZE
+    background_offset_y = 4 * SQUARE_SIZE
+
+    font_size = 60
+    font = pygame.font.Font('freesansbold.ttf', font_size)
+    txt = font.render(rules_text, True, (0, 0, 0))
+    textRect = txt.get_rect()
+    textRect.center(background_offset_x+20, background_offset_y+10)
+    gameDisplay.blit(txt, textRect)
+
 def draw_stats_screen():
-    return
+    draw_background_recktangle()
+    stats_text = "rating:0\nwins:0\nloses:0\nw/l:0%\n"
+
+    background_offset_x = 15 * SQUARE_SIZE
+    background_offset_y = 4 * SQUARE_SIZE
+
+    font_size = 60
+    font = pygame.font.Font('freesansbold.ttf', font_size)
+    txt = font.render(stats_text, True, (0, 0, 0))
+    textRect = txt.get_rect()
+    textRect.center(background_offset_x + 20, background_offset_y + 10)
+    gameDisplay.blit(txt, textRect)
 
 
-
-
-
+#
+#you will have to create a seprate file for the gui of the game
+#
 
 
 def main():

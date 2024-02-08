@@ -11,31 +11,19 @@ gameDisplay.fill(WHITE)
 
 
 def draw_main_menu():
-    FIRST_BUTTON_Y_OFFSET=3*SQUARE_SIZE
-    BUTTONS_X_OFFSET=15*SQUARE_SIZE
-
-    BUTTONS_LENGTH=6*SQUARE_SIZE
-    BUTTONS_HEIGHT=2*SQUARE_SIZE
-
-    DISTANCE_BETWEEN_BUTTONS=SQUARE_SIZE
-
-    NUM_OF_BUTTONS=5
-
-    BUTTON_COLOR=(255,0,0)
-
     cur_button_y=FIRST_BUTTON_Y_OFFSET
     for button in range(NUM_OF_BUTTONS):
         pygame.draw.rect(gameDisplay,BUTTON_COLOR,BUTTONS_X_OFFSET,cur_button_y,BUTTONS_LENGTH,BUTTONS_HEIGHT)
         cur_button_y+=DISTANCE_BETWEEN_BUTTONS
 
-    buttons_texts=["Single Player","Multiplayer","My Stats","Rules","Exit"]
+
     text_y_offset=5
     text_x_offset=2*SQUARE_SIZE
 
     font_size=60
     font = pygame.font.Font('freesansbold.ttf', font_size)
     cur_text_y=FIRST_BUTTON_Y_OFFSET+SQUARE_SIZE
-    for text in buttons_texts:
+    for text in MAIN_MENU_BUTTONS_TEXTS:
         txt = font.render(text, True, (0, 0, 0))
         textRect = txt.get_rect()
         textRect.center(BUTTONS_X_OFFSET+text_x_offset,cur_text_y)
@@ -84,6 +72,22 @@ def draw_stats_screen():
     textRect.center(background_offset_x + 20, background_offset_y + 10)
     gameDisplay.blit(txt, textRect)
 
+def draw_playing_screen():
+    draw_board_1()
+    draw_board_2()
+
+    draw_snake_1()
+    draw_snake_2()
+
+    draw_wall_1()
+    draw_wall_2()
+
+    draw_apple_1()
+    draw_apple_2()
+
+    draw_playing_screen_buttons()
+
+    draw_playing_screen_texts()
 
 #
 #you will have to create a seprate file for the gui of the game

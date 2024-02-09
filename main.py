@@ -9,85 +9,74 @@ pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
 
+font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
 
 def draw_main_menu():
-    cur_button_y=FIRST_BUTTON_Y_OFFSET
+    create_buttons_for_menu()
+    create_texts_for_buttons_in_menu()
+
+def create_buttons_for_menu():
+    cur_button_y = FIRST_BUTTON_Y_OFFSET
+
     for button in range(NUM_OF_BUTTONS):
-        pygame.draw.rect(gameDisplay,BUTTON_COLOR,BUTTONS_X_OFFSET,cur_button_y,BUTTONS_LENGTH,BUTTONS_HEIGHT)
-        cur_button_y+=DISTANCE_BETWEEN_BUTTONS
+        pygame.draw.rect(gameDisplay, BUTTON_COLOR, BUTTONS_X_OFFSET, cur_button_y, BUTTONS_LENGTH, BUTTONS_HEIGHT)
+        cur_button_y += DISTANCE_BETWEEN_BUTTONS
 
+def create_texts_for_buttons_in_menu():
+    cur_text_y = FIRST_BUTTON_Y_OFFSET + BUTTON_TEXT_Y_OFFSET
 
-    text_y_offset=5
-    text_x_offset=2*SQUARE_SIZE
-
-    font_size=60
-    font = pygame.font.Font('freesansbold.ttf', font_size)
-    cur_text_y=FIRST_BUTTON_Y_OFFSET+SQUARE_SIZE
     for text in MAIN_MENU_BUTTONS_TEXTS:
         txt = font.render(text, True, (0, 0, 0))
         textRect = txt.get_rect()
-        textRect.center(BUTTONS_X_OFFSET+text_x_offset,cur_text_y)
-        gameDisplay.blit(txt,textRect)
-        cur_text_y+=BUTTONS_HEIGHT+DISTANCE_BETWEEN_BUTTONS
+        textRect.center(BUTTONS_X_OFFSET + BUTTON_TEXT_X_OFFSET, cur_text_y)
 
-def create_buttons_for_menu():
-    return
-def create_texts_for_buttons_in_menu():
-    return
+        gameDisplay.blit(txt, textRect)
+        cur_text_y += BUTTONS_HEIGHT + DISTANCE_BETWEEN_BUTTONS
 
 def draw_background_recktangle():
-    background_offset_x = 15 * SQUARE_SIZE
-    background_offset_y = 4 * SQUARE_SIZE
-
-    background_hieght = 15 * SQUARE_SIZE
-    background_width = 6 * SQUARE_SIZE
-
-    background_recktangle = pygame.draw.rect(gameDisplay, BLACK, background_offset_x, background_offset_y, background_hieght, background_width)
+    pygame.draw.rect(gameDisplay, BLACK, BACKGROUND_OFFSET_X, BACKGROUND_OFFSET_Y, BACKGROUND_HEIGHT, BACKGROUND_WIDTH)
 
 def draw_rules_screen():
     draw_background_recktangle()
-    rules_text="1.board is 15x15\n2.screen size of game is 31x15\n3.snake starts 3 blocks long\n4.1 apple = 1 point (for every point a snake gets 1 block longer)\n5.when 1 of the players eats an apple then the apple reappears in a different place on BOTH players boards\n6.every time a new apple appears, so is a wall of 3-5 blocks\nbetween the snake and the apple itself\n7.if a players hits a wall or himself then he loses,\nregardless of how many points he has\n8.first one to get to score 30, wins"
 
-    background_offset_x = 15 * SQUARE_SIZE
-    background_offset_y = 4 * SQUARE_SIZE
-
-    font_size = 60
-    font = pygame.font.Font('freesansbold.ttf', font_size)
-    txt = font.render(rules_text, True, (0, 0, 0))
+    txt = font.render(RULES_TEXT, True, (0, 0, 0))
     textRect = txt.get_rect()
-    textRect.center(background_offset_x+20, background_offset_y+10)
+    textRect.center(BACKGROUND_OFFSET_X + TEXT_OFFSET_X, BACKGROUND_OFFSET_Y + TEXT_OFFSET_Y)
+
     gameDisplay.blit(txt, textRect)
 
 def draw_stats_screen():
     draw_background_recktangle()
-    stats_text = "rating:0\nwins:0\nloses:0\nw/l:0%\n"
+    stats_text = "rating:0\nwins:0\nloses:0\nw/l:0%\n"#it will change when I connect the database
 
-    background_offset_x = 15 * SQUARE_SIZE
-    background_offset_y = 4 * SQUARE_SIZE
-
-    font_size = 60
-    font = pygame.font.Font('freesansbold.ttf', font_size)
     txt = font.render(stats_text, True, (0, 0, 0))
     textRect = txt.get_rect()
-    textRect.center(background_offset_x + 20, background_offset_y + 10)
+    textRect.center(BACKGROUND_OFFSET_X + TEXT_OFFSET_X, BACKGROUND_OFFSET_Y + TEXT_OFFSET_Y)
+
     gameDisplay.blit(txt, textRect)
 
-def draw_playing_screen():
-    draw_board_1()
-    draw_board_2()
+def draw_playing_screen():#will implement the functions inside later
+    #draw_board_1()
+    #draw_board_2()
 
-    draw_snake_1()
-    draw_snake_2()
+    #draw_snake_1()
+    #draw_snake_2()
 
-    draw_wall_1()
-    draw_wall_2()
+    #draw_wall_1()
+    #draw_wall_2()
 
-    draw_apple_1()
-    draw_apple_2()
+    #draw_apple_1()
+    #draw_apple_2()
 
-    draw_playing_screen_buttons()
+    #draw_playing_screen_buttons()
 
-    draw_playing_screen_texts()
+    #draw_playing_screen_texts()
+
+    return
+
+
+def win_screen():
+    return
 
 #
 #you will have to create a seprate file for the gui of the game

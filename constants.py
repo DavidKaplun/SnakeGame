@@ -57,3 +57,23 @@ NUM_OF_BUTTONS=5
 BUTTON_COLOR=(255,0,0)
 
 MAIN_MENU_BUTTONS_TEXTS=["Single Player","Multiplayer","My Stats","Rules","Exit"]
+
+BUTTON_TEXT_Y_OFFSET=5
+BUTTON_TEXT_X_OFFSET=2*SQUARE_SIZE
+
+
+FONT_SIZE=60
+
+
+
+#rules and stats constants
+BACKGROUND_OFFSET_X = 15 * SQUARE_SIZE
+BACKGROUND_OFFSET_Y = 4 * SQUARE_SIZE
+
+BACKGROUND_HEIGHT = 15 * SQUARE_SIZE
+BACKGROUND_WIDTH = 6 * SQUARE_SIZE
+
+RULES_TEXT="1.board is 15x15\n2.screen size of game is 31x15\n3.snake starts 3 blocks long\n4.1 apple = 1 point (for every point a snake gets 1 block longer)\n5.when 1 of the players eats an apple then the apple reappears in a different place on BOTH players boards\n6.every time a new apple appears, so is a wall of 3-5 blocks\nbetween the snake and the apple itself\n7.if a players hits a wall or himself then he loses,\nregardless of how many points he has\n8.first one to get to score 30, wins"
+
+TEXT_OFFSET_X=20
+TEXT_OFFSET_Y=10

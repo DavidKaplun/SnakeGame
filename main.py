@@ -75,9 +75,20 @@ def draw_playing_screen():#will implement the functions inside later
     return
 
 
-def win_screen():
+def draw_win_screen():
+    #draw_win_lose_background()
+   # draw_win_text()
+    #draw_win_lose_buttons()
     return
 
+def draw_lose_screen():
+    #draw_win_lose_background()
+    #draw_lose_text()
+    #draw_win_lose_buttons()
+    return
+
+def draw_win_lose_background():
+    return
 #
 #you will have to create a seprate file for the gui of the game
 #
@@ -118,7 +129,7 @@ def main():
         pygame.time.delay(TIME_DELAY)
     print("The snake died your score is:",score)
 
-def snake_is_alive(wall):
+def snake_is_alive(wall):#pass snake here
     snake_head=my_snake.get_head()
     head_rect=pygame.Rect(snake_head.x,snake_head.y,SQUARE_SIZE,SQUARE_SIZE)
     for block in my_snake.get_blocks()[2:]:
@@ -136,13 +147,13 @@ def snake_is_touching_wall(head_rect,wall):
             if head_rect.colliderect(block_rect):
                 return True
     return False
-def snake_eating_apple():
+def snake_eating_apple():#pass snake here
     snake_head=my_snake.get_head()
     apple_rect=pygame.Rect(apple.x,apple.y,SQUARE_SIZE,SQUARE_SIZE)
     snake_head_rect=pygame.Rect(snake_head.x,snake_head.y,SQUARE_SIZE,SQUARE_SIZE)
     return apple_rect.colliderect(snake_head_rect)
 
-def create_apple():
+def create_apple():#pass snake here
     apple=INVALID_APPLE
     while apple == INVALID_APPLE:
         apple_x=random.randint(0,BOARD_LENGTH-1)*SQUARE_SIZE
@@ -153,7 +164,7 @@ def create_apple():
         apple = INVALID_APPLE
 
 
-def block_inside_snake(block):
+def block_inside_snake(block):#pass snake here
     block_rect = pygame.Rect(block.x, block.y, SQUARE_SIZE, SQUARE_SIZE)
     snake_blocks = my_snake.get_blocks()
     for snake_block in snake_blocks:
@@ -191,7 +202,7 @@ def distance_between_blocks(block1,block2):
 
 
 #drawing functions
-def draw_snake():
+def draw_snake():#pass snake here
     blocks=my_snake.get_blocks()
     for block in blocks:
         pygame.draw.rect(gameDisplay, SNAKE_COLOR, [block.x, block.y, SQUARE_SIZE, SQUARE_SIZE])
@@ -206,7 +217,7 @@ def draw_board():#change names
                 pygame.draw.rect(gameDisplay, BLACK, [SQUARE_SIZE * x, SQUARE_SIZE * y, SQUARE_SIZE, SQUARE_SIZE])
             color += 1
 
-def draw_apple():
+def draw_apple():#pass apple here
     pygame.draw.rect(gameDisplay, APPLE_COLOR, [apple.x, apple.y, SQUARE_SIZE, SQUARE_SIZE])
 
 def draw_wall(wall):
@@ -216,7 +227,7 @@ def draw_wall(wall):
 
 #below only the functions related to wall
 
-def chose_wall_type():
+def chose_wall_type():#pass snake here as well
     snake_head_x,snake_head_y=my_snake.get_head_x(), my_snake.get_head_y()
     difference_x,difference_y=snake_head_x-apple.x, snake_head_y-apple.y
     if abs(difference_x)>abs(difference_y):#if the horizontal distance bigger than vertical then build vertical walls
@@ -255,7 +266,6 @@ def build_wall_blocks(starting_block,build_direction,num_of_blocks_to_build):
 
     return wall
 def generate_wall():
-    apple_x,apple_y=apple.x,apple.y
     wall_type=chose_wall_type()
 
     start_point = chose_start_pos(wall_type)
@@ -291,7 +301,7 @@ def chose(pos_options):
         return INVALID_BLOCK
     return  random.choice(valid_options)
 
-def valid(block):
+def valid(block):#pass snake here
     return  not block_inside_snake(block) and not block_inside_apple(block) and not outside_board(block)
 
 

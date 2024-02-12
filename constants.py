@@ -77,3 +77,7 @@ RULES_TEXT="1.board is 15x15\n2.screen size of game is 31x15\n3.snake starts 3 b
 
 TEXT_OFFSET_X=20
 TEXT_OFFSET_Y=10
+
+
+WIN_TEXT="You won\nYour rating:num+num2=num3"
+LOSE_TEXT="You lost\nYour rating:num+num2=num3"

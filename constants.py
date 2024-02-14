@@ -1,15 +1,17 @@
+import pygame
 #sizes
 SQUARE_SIZE=40
 BOARD_LENGTH=15
 BOARD_HEIGHT=15
-SCREEN_WIDTH=1240
-SCREEN_HEIGHT=600
+SCREEN_WIDTH=31*SQUARE_SIZE
+SCREEN_HEIGHT=17*SQUARE_SIZE
 
 #colors
 WHITE,BLACK= (98,255,92),(69,232,63)
 SNAKE_COLOR=(30,144,255)
 APPLE_COLOR=(255,0,0)
 WALL_COLOR=(101,53,15)
+BACKGROUND_COLOR=(0,0,0)
 
 #wall types
 HORIZONTAL=1
@@ -44,13 +46,13 @@ BLOCK_TO_MOVE_TO=4
 
 
 #main menu constants
-FIRST_BUTTON_Y_OFFSET=3*SQUARE_SIZE
-BUTTONS_X_OFFSET=15*SQUARE_SIZE
+FIRST_BUTTON_Y_OFFSET=2*SQUARE_SIZE
+BUTTONS_X_OFFSET=12*SQUARE_SIZE
 
 BUTTONS_LENGTH=6*SQUARE_SIZE
 BUTTONS_HEIGHT=2*SQUARE_SIZE
 
-DISTANCE_BETWEEN_BUTTONS=SQUARE_SIZE
+DISTANCE_BETWEEN_BUTTONS=SQUARE_SIZE+BUTTONS_HEIGHT
 
 NUM_OF_BUTTONS=5
 
@@ -58,25 +60,31 @@ BUTTON_COLOR=(255,0,0)
 
 MAIN_MENU_BUTTONS_TEXTS=["Single Player","Multiplayer","My Stats","Rules","Exit"]
 
-BUTTON_TEXT_Y_OFFSET=5
-BUTTON_TEXT_X_OFFSET=2*SQUARE_SIZE
+BUTTON_TEXT_Y_OFFSET=SQUARE_SIZE
+BUTTON_TEXT_X_OFFSET=2.8*SQUARE_SIZE
 
 
-FONT_SIZE=60
+FONT_SIZE=20
 
+#main menu buttons
+SINGLE_PLAYER_BUTTON=pygame.Rect(BUTTONS_X_OFFSET, FIRST_BUTTON_Y_OFFSET, BUTTONS_LENGTH, BUTTONS_HEIGHT)
+MULTI_PLAYER_BUTTON=pygame.Rect(BUTTONS_X_OFFSET, FIRST_BUTTON_Y_OFFSET+DISTANCE_BETWEEN_BUTTONS, BUTTONS_LENGTH, BUTTONS_HEIGHT)
+MY_STATS_BUTTON=pygame.Rect(BUTTONS_X_OFFSET, FIRST_BUTTON_Y_OFFSET+2*DISTANCE_BETWEEN_BUTTONS, BUTTONS_LENGTH, BUTTONS_HEIGHT)
+RULES_BUTTON=pygame.Rect(BUTTONS_X_OFFSET, FIRST_BUTTON_Y_OFFSET+3*DISTANCE_BETWEEN_BUTTONS, BUTTONS_LENGTH, BUTTONS_HEIGHT)
+EXIT_BUTTON=pygame.Rect(BUTTONS_X_OFFSET, FIRST_BUTTON_Y_OFFSET+4*DISTANCE_BETWEEN_BUTTONS, BUTTONS_LENGTH, BUTTONS_HEIGHT)
 
 
 #rules and stats constants
-BACKGROUND_OFFSET_X = 15 * SQUARE_SIZE
-BACKGROUND_OFFSET_Y = 4 * SQUARE_SIZE
+BACKGROUND_OFFSET_X = 10 * SQUARE_SIZE
+BACKGROUND_OFFSET_Y = 2 * SQUARE_SIZE
 
-BACKGROUND_HEIGHT = 15 * SQUARE_SIZE
-BACKGROUND_WIDTH = 6 * SQUARE_SIZE
+BACKGROUND_HEIGHT = 12 * SQUARE_SIZE
+BACKGROUND_WIDTH = 9 * SQUARE_SIZE
 
-RULES_TEXT="1.board is 15x15\n2.screen size of game is 31x15\n3.snake starts 3 blocks long\n4.1 apple = 1 point (for every point a snake gets 1 block longer)\n5.when 1 of the players eats an apple then the apple reappears in a different place on BOTH players boards\n6.every time a new apple appears, so is a wall of 3-5 blocks\nbetween the snake and the apple itself\n7.if a players hits a wall or himself then he loses,\nregardless of how many points he has\n8.first one to get to score 30, wins"
+RULES_TEXT=["1. board is 15x15","2. screen size of game is 31x15","3. snake starts 3 blocks long","4. 1 apple = 1 point (for every point a snake gets 1 block longer)","5. when 1 of the players eats an apple then the apple reappears in a different place on BOTH players boards","6. every time a new apple appears, so is a wall of 3-5 blocks","    between the snake and the apple itself","7. if a players hits a wall or himself then he loses,","    regardless of how many points he has","8. first one to get to score 30, wins"]
 
-TEXT_OFFSET_X=20
-TEXT_OFFSET_Y=10
+TEXT_OFFSET_X=10
+TEXT_OFFSET_Y=SQUARE_SIZE/2
 
 
 WIN_TEXT="You won\nYour rating:num+num2=num3"

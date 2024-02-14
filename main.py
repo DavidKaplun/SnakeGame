@@ -1,10 +1,11 @@
-import pygame
+import sys
+
 from snake import snake
 import random
 from block import block
 from constants import *
 from snake_bot import get_directions_to_apple
-import copy
+
 pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
@@ -12,38 +13,40 @@ gameDisplay.fill(WHITE)
 font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
 
 def draw_main_menu():
-    create_buttons_for_menu()
-    create_texts_for_buttons_in_menu()
+    draw_buttons_for_menu()
+    draw_texts_for_buttons_in_menu()
 
-def create_buttons_for_menu():
-    cur_button_y = FIRST_BUTTON_Y_OFFSET
+def draw_buttons_for_menu():
+    pygame.draw.rect(gameDisplay,BUTTON_COLOR,SINGLE_PLAYER_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, MULTI_PLAYER_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, MY_STATS_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, RULES_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, EXIT_BUTTON)
 
-    for button in range(NUM_OF_BUTTONS):
-        pygame.draw.rect(gameDisplay, BUTTON_COLOR, BUTTONS_X_OFFSET, cur_button_y, BUTTONS_LENGTH, BUTTONS_HEIGHT)
-        cur_button_y += DISTANCE_BETWEEN_BUTTONS
-
-def create_texts_for_buttons_in_menu():
+def draw_texts_for_buttons_in_menu():
     cur_text_y = FIRST_BUTTON_Y_OFFSET + BUTTON_TEXT_Y_OFFSET
 
     for text in MAIN_MENU_BUTTONS_TEXTS:
         txt = font.render(text, True, (0, 0, 0))
         textRect = txt.get_rect()
-        textRect.center(BUTTONS_X_OFFSET + BUTTON_TEXT_X_OFFSET, cur_text_y)
+        textRect.center=(BUTTONS_X_OFFSET + BUTTON_TEXT_X_OFFSET, cur_text_y)
 
         gameDisplay.blit(txt, textRect)
-        cur_text_y += BUTTONS_HEIGHT + DISTANCE_BETWEEN_BUTTONS
+        cur_text_y += DISTANCE_BETWEEN_BUTTONS
 
 def draw_background_recktangle():
-    pygame.draw.rect(gameDisplay, BLACK, BACKGROUND_OFFSET_X, BACKGROUND_OFFSET_Y, BACKGROUND_HEIGHT, BACKGROUND_WIDTH)
+    pygame.draw.rect(gameDisplay, BACKGROUND_COLOR, (BACKGROUND_OFFSET_X, BACKGROUND_OFFSET_Y,  BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
 
 def draw_rules_screen():
+    gameDisplay.fill(WHITE)
     draw_background_recktangle()
 
-    txt = font.render(RULES_TEXT, True, (0, 0, 0))
-    textRect = txt.get_rect()
-    textRect.center(BACKGROUND_OFFSET_X + TEXT_OFFSET_X, BACKGROUND_OFFSET_Y + TEXT_OFFSET_Y)
-
-    gameDisplay.blit(txt, textRect)
+    cur_text_y=TEXT_OFFSET_Y+BACKGROUND_OFFSET_Y
+    for rule in RULES_TEXT:
+        txt = font.render(rule, True, (255, 255, 255))
+        cur_text_y+=TEXT_OFFSET_Y
+        gameDisplay.blit(txt, (BACKGROUND_OFFSET_X + TEXT_OFFSET_X,  cur_text_y))
+        cur_text_y += TEXT_OFFSET_Y
 
 def draw_stats_screen():
     draw_background_recktangle()
@@ -93,8 +96,15 @@ def draw_win_lose_background():
 #you will have to create a seprate file for the gui of the game
 #
 
-
 def main():
+    draw_main_menu()
+    while True:
+
+        pygame.display.update()
+        check_buttons_pressed_in_menu()
+        pygame.time.delay(TIME_DELAY)
+
+def old_main():
     score=0
     global my_snake,apple
     my_snake=snake()
@@ -112,7 +122,7 @@ def main():
             my_snake.turn_sequence = get_directions_to_apple(wall, my_snake, apple)
 
         pygame.display.update()
-        check_buttons_pressed()
+        check_buttons_pressed_in_menu()
         my_snake.move()
 
 
@@ -173,12 +183,37 @@ def block_inside_snake(block):#pass snake here
             return True
     return False
 
-def check_buttons_pressed():
+def check_buttons_pressed_in_menu():
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.KEYDOWN:
             respond_to_button_pressed(event.key)
 
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Call the on_mouse_button_down() function
+            on_mouse_button_down(event)
+
+def on_mouse_button_down(event):
+    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        if SINGLE_PLAYER_BUTTON.collidepoint(event.pos):
+            print("single player button pressed")
+
+        if MULTI_PLAYER_BUTTON.collidepoint(event.pos):
+            print("multi player button pressed")
+
+        if MY_STATS_BUTTON.collidepoint(event.pos):
+            draw_stats_screen()
+
+        if RULES_BUTTON.collidepoint(event.pos):
+            draw_rules_screen()
+
+        if EXIT_BUTTON.collidepoint(event.pos):
+            pygame.quit()
+            sys.exit()
 
 def respond_to_button_pressed(button_pressed):
     cur_dir = my_snake.get_direction()

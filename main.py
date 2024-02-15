@@ -13,32 +13,12 @@ gameDisplay.fill(WHITE)
 font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
 
 def draw_main_menu():
+    gameDisplay.fill(WHITE)
     global current_screen
     current_screen="main menu"
 
     draw_buttons_for_menu()
     draw_texts_for_buttons_in_menu()
-
-def draw_buttons_for_menu():
-    pygame.draw.rect(gameDisplay,BUTTON_COLOR,SINGLE_PLAYER_BUTTON)
-    pygame.draw.rect(gameDisplay, BUTTON_COLOR, MULTI_PLAYER_BUTTON)
-    pygame.draw.rect(gameDisplay, BUTTON_COLOR, MY_STATS_BUTTON)
-    pygame.draw.rect(gameDisplay, BUTTON_COLOR, RULES_BUTTON)
-    pygame.draw.rect(gameDisplay, BUTTON_COLOR, EXIT_BUTTON)
-
-def draw_texts_for_buttons_in_menu():
-    cur_text_y = FIRST_BUTTON_Y_OFFSET + BUTTON_TEXT_Y_OFFSET
-
-    for text in MAIN_MENU_BUTTONS_TEXTS:
-        txt = font.render(text, True, (0, 0, 0))
-        textRect = txt.get_rect()
-        textRect.center=(BUTTONS_X_OFFSET + BUTTON_TEXT_X_OFFSET, cur_text_y)
-
-        gameDisplay.blit(txt, textRect)
-        cur_text_y += DISTANCE_BETWEEN_BUTTONS
-
-def draw_background_recktangle():
-    pygame.draw.rect(gameDisplay, BACKGROUND_COLOR, (BACKGROUND_OFFSET_X, BACKGROUND_OFFSET_Y,  BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
 
 def draw_rules_screen():
     gameDisplay.fill(WHITE)
@@ -51,27 +31,27 @@ def draw_rules_screen():
     gameDisplay.blit(title,(RULES_TITLE_X_OFFSET,RULES_TITLE_Y_OFFSET))
 
     cur_text_y=FIRST_TEXT_OFFSET+BACKGROUND_OFFSET_Y
-    for rule in RULES_TEXT:
-        txt = font.render(rule, True, (255, 255, 255))
-        cur_text_y+=TEXT_OFFSET_Y
-        gameDisplay.blit(txt, (BACKGROUND_OFFSET_X + TEXT_OFFSET_X,  cur_text_y))
+    for line in RULES_TEXT:
+        txt = font.render(line, True, (255, 255, 255))
+        gameDisplay.blit(txt, (TEXT_OFFSET_X,  cur_text_y))
         cur_text_y += TEXT_OFFSET_Y
 
     draw_back_button()
-
-def draw_back_button():
-    pygame.draw.rect(gameDisplay,BUTTON_COLOR,BACK_BUTTON)
-    txt = font.render(BACK_BUTTON_TEXT, True, (255, 255, 255))
-    gameDisplay.blit(txt,(BACK_BUTTON_TEXT_X_OFFSET,BACK_BUTTON_TEXT_Y_OFFSET))
 def draw_stats_screen():
+    gameDisplay.fill(WHITE)
     draw_background_recktangle()
-    stats_text = "rating:0\nwins:0\nloses:0\nw/l:0%\n"#it will change when I connect the database
 
-    txt = font.render(stats_text, True, (0, 0, 0))
-    textRect = txt.get_rect()
-    textRect.center(BACKGROUND_OFFSET_X + TEXT_OFFSET_X, BACKGROUND_OFFSET_Y + TEXT_OFFSET_Y)
+    global current_screen
+    current_screen = "stats"
+    stats_text = ["rating:0","wins:0","loses:0","w/l:0%"]  # it will change when I connect the database
 
-    gameDisplay.blit(txt, textRect)
+    cur_text_y =FIRST_TEXT_OFFSET
+    for line in stats_text:
+        txt = font.render(line, True, (255, 255, 255))
+        gameDisplay.blit(txt, (TEXT_OFFSET_X, cur_text_y))
+        cur_text_y += TEXT_OFFSET_Y
+
+    draw_back_button()
 
 def draw_playing_screen():#will implement the functions inside later
     #draw_board_1()
@@ -110,6 +90,35 @@ def draw_win_lose_background():
 #
 #you will have to create a seprate file for the gui of the game
 #
+
+
+def draw_back_button():
+    pygame.draw.rect(gameDisplay,BUTTON_COLOR,BACK_BUTTON)
+    txt = font.render(BACK_BUTTON_TEXT, True, (255, 255, 255))
+    gameDisplay.blit(txt,(BACK_BUTTON_TEXT_X_OFFSET,BACK_BUTTON_TEXT_Y_OFFSET))
+
+
+def draw_buttons_for_menu():
+    pygame.draw.rect(gameDisplay,BUTTON_COLOR,SINGLE_PLAYER_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, MULTI_PLAYER_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, MY_STATS_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, RULES_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, EXIT_BUTTON)
+
+
+def draw_texts_for_buttons_in_menu():
+    cur_text_y = FIRST_BUTTON_Y_OFFSET + BUTTON_TEXT_Y_OFFSET
+
+    for text in MAIN_MENU_BUTTONS_TEXTS:
+        txt = font.render(text, True, (0, 0, 0))
+        textRect = txt.get_rect()
+        textRect.center=(BUTTONS_X_OFFSET + BUTTON_TEXT_X_OFFSET, cur_text_y)
+
+        gameDisplay.blit(txt, textRect)
+        cur_text_y += DISTANCE_BETWEEN_BUTTONS
+
+def draw_background_recktangle():
+    pygame.draw.rect(gameDisplay, BACKGROUND_COLOR, (BACKGROUND_OFFSET_X, BACKGROUND_OFFSET_Y,  BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
 
 def main():
     global current_screen
@@ -232,6 +241,12 @@ def on_mouse_button_down(event):
             if EXIT_BUTTON.collidepoint(event.pos):
                 pygame.quit()
                 sys.exit()
+
+        elif current_screen=="rules" or current_screen=="stats":
+            if BACK_BUTTON.collidepoint((event.pos)):
+                draw_main_menu()
+
+
 
 def respond_to_button_pressed(button_pressed):
     cur_dir = my_snake.get_direction()

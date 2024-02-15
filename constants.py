@@ -90,20 +90,20 @@ RULES_TITLE_Y_OFFSET=BACKGROUND_OFFSET_Y+20
 #rules text constants
 RULES_TEXT=["1. board is 15x15","2. screen size of game is 31x15","3. snake starts 3 blocks long","4. 1 apple = 1 point (for every point a snake gets 1 block longer)","5. when 1 of the players eats an apple then the apple reappears ","    in a different place on BOTH players boards","6. every time a new apple appears, so is a wall of","    3-5 blocks between the snake and the apple itself","7. if a players hits a wall or himself then he loses,","    regardless of how many points he has","8. first one to get to score 30, wins"]
 FIRST_TEXT_OFFSET=1.2*SQUARE_SIZE
-TEXT_OFFSET_X=10
-TEXT_OFFSET_Y=SQUARE_SIZE/2
+TEXT_OFFSET_X=BACKGROUND_OFFSET_X+10
+TEXT_OFFSET_Y=SQUARE_SIZE
 
 #rules back button recktangle
-BACK_BUTTON_X_OFFSET=12*SQUARE_SIZE
+BACK_BUTTON_X_OFFSET=13*SQUARE_SIZE
 BACK_BUTTON_Y_OFFSET=13.5*SQUARE_SIZE
 
-BUTTON_SIZE_X=6*SQUARE_SIZE
-BUTTON_SIZE_Y=2*SQUARE_SIZE
+BUTTON_SIZE_X=4.5*SQUARE_SIZE
+BUTTON_SIZE_Y=1.5*SQUARE_SIZE
 BACK_BUTTON=pygame.Rect(BACK_BUTTON_X_OFFSET, BACK_BUTTON_Y_OFFSET, BUTTON_SIZE_X, BUTTON_SIZE_Y)
 
 #rules back button text constants
 BACK_BUTTON_TEXT="BACK"
-BACK_BUTTON_TEXT_X_OFFSET=2*SQUARE_SIZE+BACK_BUTTON_X_OFFSET
+BACK_BUTTON_TEXT_X_OFFSET=1.5*SQUARE_SIZE+BACK_BUTTON_X_OFFSET
 BACK_BUTTON_TEXT_Y_OFFSET=20+BACK_BUTTON_Y_OFFSET
 
 WIN_TEXT="You won\nYour rating:num+num2=num3"

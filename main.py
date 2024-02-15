@@ -13,6 +13,9 @@ gameDisplay.fill(WHITE)
 font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
 
 def draw_main_menu():
+    global current_screen
+    current_screen="main menu"
+
     draw_buttons_for_menu()
     draw_texts_for_buttons_in_menu()
 
@@ -41,13 +44,25 @@ def draw_rules_screen():
     gameDisplay.fill(WHITE)
     draw_background_recktangle()
 
-    cur_text_y=TEXT_OFFSET_Y+BACKGROUND_OFFSET_Y
+    global current_screen
+    current_screen= "rules"
+
+    title=font.render(RULES_TITLE_TEXT,True,(255,255,255))
+    gameDisplay.blit(title,(RULES_TITLE_X_OFFSET,RULES_TITLE_Y_OFFSET))
+
+    cur_text_y=FIRST_TEXT_OFFSET+BACKGROUND_OFFSET_Y
     for rule in RULES_TEXT:
         txt = font.render(rule, True, (255, 255, 255))
         cur_text_y+=TEXT_OFFSET_Y
         gameDisplay.blit(txt, (BACKGROUND_OFFSET_X + TEXT_OFFSET_X,  cur_text_y))
         cur_text_y += TEXT_OFFSET_Y
 
+    draw_back_button()
+
+def draw_back_button():
+    pygame.draw.rect(gameDisplay,BUTTON_COLOR,BACK_BUTTON)
+    txt = font.render(BACK_BUTTON_TEXT, True, (255, 255, 255))
+    gameDisplay.blit(txt,(BACK_BUTTON_TEXT_X_OFFSET,BACK_BUTTON_TEXT_Y_OFFSET))
 def draw_stats_screen():
     draw_background_recktangle()
     stats_text = "rating:0\nwins:0\nloses:0\nw/l:0%\n"#it will change when I connect the database
@@ -97,6 +112,8 @@ def draw_win_lose_background():
 #
 
 def main():
+    global current_screen
+    current_screen="main menu"
     draw_main_menu()
     while True:
 
@@ -199,21 +216,22 @@ def check_buttons_pressed_in_menu():
 
 def on_mouse_button_down(event):
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        if SINGLE_PLAYER_BUTTON.collidepoint(event.pos):
-            print("single player button pressed")
+        if current_screen=="main menu":
+            if SINGLE_PLAYER_BUTTON.collidepoint(event.pos):
+                print("single player button pressed")
 
-        if MULTI_PLAYER_BUTTON.collidepoint(event.pos):
-            print("multi player button pressed")
+            if MULTI_PLAYER_BUTTON.collidepoint(event.pos):
+                print("multi player button pressed")
 
-        if MY_STATS_BUTTON.collidepoint(event.pos):
-            draw_stats_screen()
+            if MY_STATS_BUTTON.collidepoint(event.pos):
+                draw_stats_screen()
 
-        if RULES_BUTTON.collidepoint(event.pos):
-            draw_rules_screen()
+            if RULES_BUTTON.collidepoint(event.pos):
+                draw_rules_screen()
 
-        if EXIT_BUTTON.collidepoint(event.pos):
-            pygame.quit()
-            sys.exit()
+            if EXIT_BUTTON.collidepoint(event.pos):
+                pygame.quit()
+                sys.exit()
 
 def respond_to_button_pressed(button_pressed):
     cur_dir = my_snake.get_direction()

@@ -1,5 +1,5 @@
 import sys
-
+from board import *
 from snake import snake
 import random
 from block import block
@@ -28,7 +28,7 @@ def draw_rules_screen():
     current_screen= "rules"
 
     title=font.render(RULES_TITLE_TEXT,True,(255,255,255))
-    gameDisplay.blit(title,(RULES_TITLE_X_OFFSET,RULES_TITLE_Y_OFFSET))
+    gameDisplay.blit(title,(TITLE_X_OFFSET,TITLE_Y_OFFSET))
 
     cur_text_y=FIRST_TEXT_OFFSET+BACKGROUND_OFFSET_Y
     for line in RULES_TEXT:
@@ -41,11 +41,14 @@ def draw_stats_screen():
     gameDisplay.fill(WHITE)
     draw_background_recktangle()
 
+    title = font.render(STATS_TITLE_TEXT, True, (255, 255, 255))
+    gameDisplay.blit(title, (TITLE_X_OFFSET, TITLE_Y_OFFSET))
+
     global current_screen
     current_screen = "stats"
     stats_text = ["rating:0","wins:0","loses:0","w/l:0%"]  # it will change when I connect the database
 
-    cur_text_y =FIRST_TEXT_OFFSET
+    cur_text_y = FIRST_TEXT_OFFSET
     for line in stats_text:
         txt = font.render(line, True, (255, 255, 255))
         gameDisplay.blit(txt, (TEXT_OFFSET_X, cur_text_y))
@@ -124,11 +127,78 @@ def main():
     global current_screen
     current_screen="main menu"
     draw_main_menu()
+
     while True:
+        pygame.display.update()
+        check_buttons_pressed()
+        pygame.time.delay(TIME_DELAY)
+
+
+def single_player():
+    gameDisplay.fill(WHITE)
+    global current_screen
+    current_screen = "single player"
+
+    human_board=board(BOARD1_OFFSET_X,BOARD_OFFSET_Y)
+    bot_board=board(BOARD2_OFFSET_X, BOARD_OFFSET_Y)
+
+    prev_dir1, prev_dir2="",""
+    bot_board.snake.turn_sequence=get_directions_to_apple(bot_board.wall, bot_board.snake, bot_board.apple)
+    while human_board.snake_is_alive() and bot_board.snake_is_alive():
+        human_board.snake.move()
+        bot_board.snake.move()
+
+        if human_board.snake_eating_apple():
+            prev_dir1 = human_board.snake.get_last_block().dir
+            human_board.snake.grow()
+            human_board.apple = human_board.create_apple()
+            human_board.wall = human_board.generate_wall()
+
+            bot_board.apple=bot_board.create_apple()
+            bot_board.wall=bot_board.generate_wall()
+            bot_board.snake.turn_sequence=get_directions_to_apple(bot_board.wall, bot_board.snake, bot_board.apple)
+
+            human_board.score += 1
+
+        if bot_board.snake_eating_apple():
+            prev_dir2 = bot_board.snake.get_last_block().dir
+            bot_board.snake.grow()
+
+            human_board.apple = human_board.create_apple()
+            human_board.wall = human_board.generate_wall()
+
+            bot_board.apple = bot_board.create_apple()
+            bot_board.wall = bot_board.generate_wall()
+            bot_board.snake.turn_sequence = get_directions_to_apple(bot_board.wall, bot_board.snake, bot_board.apple)
+
+            bot_board.score += 1
 
         pygame.display.update()
-        check_buttons_pressed_in_menu()
+        check_keyboard_pressed(human_board)
+
+        draw_board(human_board)
+        draw_snake(human_board.snake)
+        draw_apple(human_board.apple)
+        draw_wall(human_board.wall)
+
+        draw_board(bot_board)
+        draw_snake(bot_board.snake)
+        draw_apple(bot_board.apple)
+        draw_wall(bot_board.wall)
+
+        last_snake1_block = human_board.snake.get_last_block()
+        last_snake2_block = bot_board.snake.get_last_block()
+
+        if last_snake1_block.dir == "":
+            if distance_between_blocks(human_board.snake.blocks[-2], last_snake1_block) >= SQUARE_SIZE:
+                last_snake1_block.turn(prev_dir1)
+
+        if last_snake2_block.dir == "":
+            if distance_between_blocks(bot_board.snake.blocks[-2], last_snake2_block) >= SQUARE_SIZE:
+                last_snake2_block.turn(prev_dir2)
         pygame.time.delay(TIME_DELAY)
+
+    print("scores:",human_board.score,bot_board.score)
 
 def old_main():
     score=0
@@ -148,7 +218,7 @@ def old_main():
             my_snake.turn_sequence = get_directions_to_apple(wall, my_snake, apple)
 
         pygame.display.update()
-        check_buttons_pressed_in_menu()
+        check_buttons_pressed()
         my_snake.move()
 
 
@@ -209,12 +279,9 @@ def block_inside_snake(block):#pass snake here
             return True
     return False
 
-def check_buttons_pressed_in_menu():
+def check_buttons_pressed():
     events = pygame.event.get()
     for event in events:
-        if event.type == pygame.KEYDOWN:
-            respond_to_button_pressed(event.key)
-
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -223,11 +290,17 @@ def check_buttons_pressed_in_menu():
             # Call the on_mouse_button_down() function
             on_mouse_button_down(event)
 
+def check_keyboard_pressed(human_board):
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.KEYDOWN:
+            respond_to_key_pressed(event.key,human_board)
+
 def on_mouse_button_down(event):
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         if current_screen=="main menu":
             if SINGLE_PLAYER_BUTTON.collidepoint(event.pos):
-                print("single player button pressed")
+                single_player()
 
             if MULTI_PLAYER_BUTTON.collidepoint(event.pos):
                 print("multi player button pressed")
@@ -248,8 +321,8 @@ def on_mouse_button_down(event):
 
 
 
-def respond_to_button_pressed(button_pressed):
-    cur_dir = my_snake.get_direction()
+def respond_to_key_pressed(button_pressed,human_board):
+    cur_dir = human_board.snake.get_direction()
     new_dir=""
     match button_pressed:
         case pygame.K_UP:
@@ -263,29 +336,29 @@ def respond_to_button_pressed(button_pressed):
         case _:
             return
 
-    my_snake.add_turn(new_dir)
+    human_board.snake.add_turn(new_dir)
 
 def distance_between_blocks(block1,block2):
     return abs(block1.x-block2.x)+abs(block1.y-block2.y)
 
 
 #drawing functions
-def draw_snake():#pass snake here
-    blocks=my_snake.get_blocks()
+def draw_snake(snake):
+    blocks=snake.get_blocks()
     for block in blocks:
         pygame.draw.rect(gameDisplay, SNAKE_COLOR, [block.x, block.y, SQUARE_SIZE, SQUARE_SIZE])
 
-def draw_board():#change names
+def draw_board(board):#change names
     color = 0
     for y in range(BOARD_HEIGHT):
         for x in range(BOARD_LENGTH):
             if color %2 == 0:
-                pygame.draw.rect(gameDisplay, WHITE,[SQUARE_SIZE*x,SQUARE_SIZE*y,SQUARE_SIZE,SQUARE_SIZE])
+                pygame.draw.rect(gameDisplay, WHITE,[SQUARE_SIZE*x+board.offset_x, SQUARE_SIZE*y+board.offset_y, SQUARE_SIZE,SQUARE_SIZE])
             else:
-                pygame.draw.rect(gameDisplay, BLACK, [SQUARE_SIZE * x, SQUARE_SIZE * y, SQUARE_SIZE, SQUARE_SIZE])
+                pygame.draw.rect(gameDisplay, BLACK, [SQUARE_SIZE * x + board.offset_x, SQUARE_SIZE * y + board.offset_y, SQUARE_SIZE, SQUARE_SIZE])
             color += 1
 
-def draw_apple():#pass apple here
+def draw_apple(apple):
     pygame.draw.rect(gameDisplay, APPLE_COLOR, [apple.x, apple.y, SQUARE_SIZE, SQUARE_SIZE])
 
 def draw_wall(wall):

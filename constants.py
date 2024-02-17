@@ -3,7 +3,7 @@ import pygame
 SQUARE_SIZE=40
 BOARD_LENGTH=15
 BOARD_HEIGHT=15
-SCREEN_WIDTH=31*SQUARE_SIZE
+SCREEN_WIDTH=32*SQUARE_SIZE
 SCREEN_HEIGHT=17*SQUARE_SIZE
 
 #colors
@@ -84,12 +84,13 @@ BACKGROUND_WIDTH = 16* SQUARE_SIZE
 
 #rules title constants
 RULES_TITLE_TEXT="RULES OF THE GAME:"
-RULES_TITLE_X_OFFSET=12*SQUARE_SIZE
-RULES_TITLE_Y_OFFSET=BACKGROUND_OFFSET_Y+20
+STATS_TITLE_TEXT="MY STATS:"
+TITLE_X_OFFSET=12*SQUARE_SIZE
+TITLE_Y_OFFSET=BACKGROUND_OFFSET_Y+20
 
 #rules text constants
 RULES_TEXT=["1. board is 15x15","2. screen size of game is 31x15","3. snake starts 3 blocks long","4. 1 apple = 1 point (for every point a snake gets 1 block longer)","5. when 1 of the players eats an apple then the apple reappears ","    in a different place on BOTH players boards","6. every time a new apple appears, so is a wall of","    3-5 blocks between the snake and the apple itself","7. if a players hits a wall or himself then he loses,","    regardless of how many points he has","8. first one to get to score 30, wins"]
-FIRST_TEXT_OFFSET=1.2*SQUARE_SIZE
+FIRST_TEXT_OFFSET=1.2*SQUARE_SIZE+BACKGROUND_OFFSET_Y
 TEXT_OFFSET_X=BACKGROUND_OFFSET_X+10
 TEXT_OFFSET_Y=SQUARE_SIZE
 
@@ -105,6 +106,13 @@ BACK_BUTTON=pygame.Rect(BACK_BUTTON_X_OFFSET, BACK_BUTTON_Y_OFFSET, BUTTON_SIZE_
 BACK_BUTTON_TEXT="BACK"
 BACK_BUTTON_TEXT_X_OFFSET=1.5*SQUARE_SIZE+BACK_BUTTON_X_OFFSET
 BACK_BUTTON_TEXT_Y_OFFSET=20+BACK_BUTTON_Y_OFFSET
+
+
+#board offsets
+BOARD1_OFFSET_X=0
+BOARD2_OFFSET_X=16*SQUARE_SIZE
+
+BOARD_OFFSET_Y=1*SQUARE_SIZE
 
 WIN_TEXT="You won\nYour rating:num+num2=num3"
 LOSE_TEXT="You lost\nYour rating:num+num2=num3"

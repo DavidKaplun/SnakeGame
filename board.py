@@ -6,16 +6,19 @@ import pygame
 
 class board:
 
-    def __init__(self):
-        self.snake=snake()
+    def __init__(self,board_offset_x,board_offset_y):
+        self.offset_x = board_offset_x
+        self.offset_y = board_offset_y
+        self.snake=snake(board_offset_x,board_offset_y)
         self.apple=self.create_apple()
         self.wall=self.generate_wall()
+        self.score=0
 
     def create_apple(self):
         apple = INVALID_APPLE
         while apple == INVALID_APPLE:
-            apple_x = random.randint(0, BOARD_LENGTH - 1) * SQUARE_SIZE
-            apple_y = random.randint(0, BOARD_HEIGHT - 1) * SQUARE_SIZE
+            apple_x = random.randint(0, BOARD_LENGTH - 1) * SQUARE_SIZE + self.offset_x
+            apple_y = random.randint(0, BOARD_HEIGHT - 1) * SQUARE_SIZE + self.offset_y
             apple = block(apple_x, apple_y)
             if not (self.block_inside_snake(apple) or distance_between_blocks(apple, self.snake.get_head()) < MIN_DIST_BETWEEN_APPLE_AND_SNAKE):
                 return apple
@@ -96,7 +99,7 @@ class board:
 
 
     def valid(self,block):
-        return not self.block_inside_snake(block) and not self.block_inside_apple(block) and not outside_board(block)
+        return not self.block_inside_snake(block) and not self.block_inside_apple(block) and not self.outside_board(block)
 
     def snake_is_alive(self):
         snake_head = self.snake.get_head()
@@ -105,7 +108,7 @@ class board:
             block_rect = pygame.Rect(block.x, block.y, SQUARE_SIZE, SQUARE_SIZE)
             if head_rect.colliderect(block_rect):
                 return False
-        if outside_board(snake_head) or self.snake_is_touching_wall(head_rect):
+        if self.outside_board(snake_head) or self.snake_is_touching_wall(head_rect):
             return False
         return True
 
@@ -132,15 +135,9 @@ class board:
         snake_head_rect=pygame.Rect(snake_head.x,snake_head.y,SQUARE_SIZE,SQUARE_SIZE)
         return apple_rect.colliderect(snake_head_rect)
 
-    def create_apple(self):
-        apple = INVALID_APPLE
-        while apple == INVALID_APPLE:
-            apple_x = random.randint(0, BOARD_LENGTH - 1) * SQUARE_SIZE
-            apple_y = random.randint(0, BOARD_HEIGHT - 1) * SQUARE_SIZE
-            apple = block(apple_x, apple_y)
-            if not (self.block_inside_snake(apple) or distance_between_blocks(apple, self.snake.get_head()) < MIN_DIST_BETWEEN_APPLE_AND_SNAKE):
-                return apple
-            apple = INVALID_APPLE
+    def outside_board(self,block):
+        return block.x < self.offset_x or block.y < self.offset_y or block.x > (BOARD_LENGTH - 1) * SQUARE_SIZE +self.offset_x or block.y > (BOARD_HEIGHT - 1) * SQUARE_SIZE + self.offset_y
+
 
 
 def gen_new_block_position_options(block_x, block_y, build_direction):
@@ -167,8 +164,7 @@ def gen_new_block_position_options(block_x, block_y, build_direction):
 def distance_between_blocks(block1,block2):
     return abs(block1.x-block2.x)+abs(block1.y-block2.y)
 
-def outside_board(block):
-    return block.x<0 or block.y<0 or block.x>(BOARD_LENGTH-1)*SQUARE_SIZE or block.y>(BOARD_LENGTH-1)*SQUARE_SIZE
+
 
 
 

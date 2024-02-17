@@ -3,6 +3,8 @@ import copy
 import heapq
 
 def convert_block_cords_to_grid_cords(block_x,block_y,snake_direction):
+    block_x-=BOARD2_OFFSET_X
+    block_y-=BOARD_OFFSET_Y
     match snake_direction:
         case "up":
             return block_y//SQUARE_SIZE,block_x//SQUARE_SIZE
@@ -17,7 +19,7 @@ def convert_block_cords_to_grid_cords(block_x,block_y,snake_direction):
 def get_directions_to_apple(wall,snake,apple):
     snake_head_grid_cords = convert_block_cords_to_grid_cords(snake.get_head_x(), snake.get_head_y() ,snake.get_direction())
     grid=create_grid(wall,snake,apple)
-    path=find_shortest_path(grid,(snake_head_grid_cords[0],snake_head_grid_cords[1]),(apple.y//SQUARE_SIZE,apple.x//SQUARE_SIZE))
+    path=find_shortest_path(grid,(snake_head_grid_cords[0],snake_head_grid_cords[1]),((apple.y-BOARD_OFFSET_Y)//SQUARE_SIZE,(apple.x-BOARD2_OFFSET_X)//SQUARE_SIZE))
     return convert_path_to_directions(path)
 
 def create_grid(wall,snake,apple):
@@ -30,15 +32,17 @@ def create_grid(wall,snake,apple):
     return add(grid,wall,snake,apple)
 
 def add(grid,wall,snake,apple):
-    grid[apple.y//SQUARE_SIZE][apple.x//SQUARE_SIZE]=APPLE
+    grid[(apple.y-BOARD_OFFSET_Y)//SQUARE_SIZE][(apple.x-BOARD2_OFFSET_X)//SQUARE_SIZE]=APPLE
     if wall!=INCONSTRACTABLE:
         for block in wall:
-            grid[block.y//SQUARE_SIZE][block.x//SQUARE_SIZE]=BARRIER
+            grid[(block.y-BOARD_OFFSET_Y)//SQUARE_SIZE][(block.x-BOARD2_OFFSET_X)//SQUARE_SIZE]=BARRIER
     snake_head_grid_cords=convert_block_cords_to_grid_cords(snake.get_head_x(),snake.get_head_y(),snake.get_direction())
     grid[snake_head_grid_cords[0]][snake_head_grid_cords[1]]=SNAKE_HEAD
     for block in snake.get_blocks()[1:]:
         block_grid_cords=convert_block_cords_to_grid_cords(block.x,block.y,block.dir)
         grid[block_grid_cords[0]][block_grid_cords[1]]=BARRIER
+    for line in grid:
+        print(line)
     return grid
 
 

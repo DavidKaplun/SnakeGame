@@ -2,10 +2,10 @@ from snake_block import snake_block
 from copy import copy
 from constants import SQUARE_SIZE,FIRST,LAST
 class snake:
-    def __init__(self):
+    def __init__(self,board_offset_x,board_offset_y):
         self.turn_sequence=[]
         self.turn_positions=[]
-        self.blocks=[snake_block(100,200,"right","head"),snake_block(60,200,"right","normal"), snake_block(20,200,"right","last")]
+        self.blocks=[snake_block(100+board_offset_x,200+board_offset_y,"right","head"),snake_block(60+board_offset_x,200+board_offset_y,"right","normal"), snake_block(20+board_offset_x,200+board_offset_y,"right","last")]
     def get_blocks(self):
         return self.blocks
 

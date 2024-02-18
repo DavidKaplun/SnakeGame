@@ -195,6 +195,18 @@ def single_player():
         pygame.time.delay(TIME_DELAY)
 
     print("scores:",human_board.score,bot_board.score)
+    draw_end_of_game_screen(human_board, bot_board)
+
+def draw_end_of_game_screen(human_board,bot_board):
+    pygame.draw.rect(gameDisplay,BACKGROUND_COLOR,[END_OF_GAME_BACKGROUND_X_OFFSET, END_OF_GAME_BACKGROUND_Y_OFFSET, END_OF_GAME_BACKGROUND_LENGTH, END_OF_GAME_BACKGROUND_HEIGHT])
+    text = "You "
+    if human_board.snake_is_alive()==False or human_board.score<bot_board.score:
+        text += "lost"
+    else:
+        text += "won"
+
+    end_of_game_text = font.render(text, True, (255, 255, 255))
+    gameDisplay.blit(end_of_game_text, (END_OF_GAME_TEXT_OFFSET_X, END_OF_GAME_TEXT_OFFSET_Y))
 
 def draw_scores(board1,board2):
     name1 = font.render(board1.name, True, (255, 255, 255))

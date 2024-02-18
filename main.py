@@ -78,7 +78,7 @@ def draw_playing_screen():#will implement the functions inside later
 
 def draw_win_screen():
     #draw_win_lose_background()
-   # draw_win_text()
+    #draw_win_text()
     #draw_win_lose_buttons()
     return
 
@@ -139,9 +139,9 @@ def single_player():
     global current_screen
     current_screen = "single player"
 
-    human_board=board(BOARD1_OFFSET_X,BOARD_OFFSET_Y)
-    bot_board=board(BOARD2_OFFSET_X, BOARD_OFFSET_Y)
-
+    human_board=board(BOARD1_OFFSET_X,BOARD_OFFSET_Y,"human")
+    bot_board=board(BOARD2_OFFSET_X, BOARD_OFFSET_Y,"bot")
+    draw_scores(human_board, bot_board)
     prev_dir1, prev_dir2="",""
     bot_board.snake.turn_sequence=get_directions_to_apple(bot_board.wall, bot_board.snake, bot_board.apple)
     while human_board.snake_is_alive() and bot_board.snake_is_alive():
@@ -151,40 +151,36 @@ def single_player():
         if human_board.snake_eating_apple():
             prev_dir1 = human_board.snake.get_last_block().dir
             human_board.snake.grow()
-            human_board.apple = human_board.create_apple()
-            human_board.wall = human_board.generate_wall()
 
-            bot_board.apple=bot_board.create_apple()
-            bot_board.wall=bot_board.generate_wall()
+            update_board(human_board)
+            update_board(bot_board)
+
             bot_board.snake.turn_sequence=get_directions_to_apple(bot_board.wall, bot_board.snake, bot_board.apple)
 
             human_board.score += 1
+            gameDisplay.fill(WHITE)
+            draw_scores(human_board, bot_board)
 
         if bot_board.snake_eating_apple():
             prev_dir2 = bot_board.snake.get_last_block().dir
             bot_board.snake.grow()
 
-            human_board.apple = human_board.create_apple()
-            human_board.wall = human_board.generate_wall()
+            update_board(human_board)
+            update_board(bot_board)
 
-            bot_board.apple = bot_board.create_apple()
-            bot_board.wall = bot_board.generate_wall()
             bot_board.snake.turn_sequence = get_directions_to_apple(bot_board.wall, bot_board.snake, bot_board.apple)
 
             bot_board.score += 1
+            gameDisplay.fill(WHITE)
+            draw_scores(human_board,bot_board)
 
+        draw_board(human_board)
+        draw_board(bot_board)
         pygame.display.update()
         check_keyboard_pressed(human_board)
 
         draw_board(human_board)
-        draw_snake(human_board.snake)
-        draw_apple(human_board.apple)
-        draw_wall(human_board.wall)
-
         draw_board(bot_board)
-        draw_snake(bot_board.snake)
-        draw_apple(bot_board.apple)
-        draw_wall(bot_board.wall)
 
         last_snake1_block = human_board.snake.get_last_block()
         last_snake2_block = bot_board.snake.get_last_block()
@@ -199,6 +195,23 @@ def single_player():
         pygame.time.delay(TIME_DELAY)
 
     print("scores:",human_board.score,bot_board.score)
+
+def draw_scores(board1,board2):
+    name1 = font.render(board1.name, True, (255, 255, 255))
+    gameDisplay.blit(name1, (BOARD1_NAME_OFFSET_X, SCORE_OFFSET_Y))
+
+    score1 = font.render(str(board1.score), True, (255, 255, 255))
+    gameDisplay.blit(score1, (BOARD1_SCORE_OFFSET_X, SCORE_OFFSET_Y))
+
+    name2 = font.render(board2.name, True, (255, 255, 255))
+    gameDisplay.blit(name2, (BOARD2_NAME_OFFSET_X, SCORE_OFFSET_Y))
+
+    score2 = font.render(str(board2.score), True, (255, 255, 255))
+    gameDisplay.blit(score2, (BOARD2_SCORE_OFFSET_X, SCORE_OFFSET_Y))
+
+def update_board(board):
+    board.apple=board.create_apple()
+    board.wall=board.generate_wall()
 
 def old_main():
     score=0
@@ -357,6 +370,9 @@ def draw_board(board):#change names
             else:
                 pygame.draw.rect(gameDisplay, BLACK, [SQUARE_SIZE * x + board.offset_x, SQUARE_SIZE * y + board.offset_y, SQUARE_SIZE, SQUARE_SIZE])
             color += 1
+    draw_snake(board.snake)
+    draw_apple(board.apple)
+    draw_wall(board.wall)
 
 def draw_apple(apple):
     pygame.draw.rect(gameDisplay, APPLE_COLOR, [apple.x, apple.y, SQUARE_SIZE, SQUARE_SIZE])

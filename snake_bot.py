@@ -41,8 +41,6 @@ def add(grid,wall,snake,apple):
     for block in snake.get_blocks()[1:]:
         block_grid_cords=convert_block_cords_to_grid_cords(block.x,block.y,block.dir)
         grid[block_grid_cords[0]][block_grid_cords[1]]=BARRIER
-    for line in grid:
-        print(line)
     return grid
 
 

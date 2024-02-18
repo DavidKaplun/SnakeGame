@@ -6,13 +6,14 @@ import pygame
 
 class board:
 
-    def __init__(self,board_offset_x,board_offset_y):
+    def __init__(self,board_offset_x,board_offset_y,name):
         self.offset_x = board_offset_x
         self.offset_y = board_offset_y
         self.snake=snake(board_offset_x,board_offset_y)
         self.apple=self.create_apple()
         self.wall=self.generate_wall()
         self.score=0
+        self.name=name
 
     def create_apple(self):
         apple = INVALID_APPLE

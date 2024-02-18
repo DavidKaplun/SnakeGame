@@ -208,6 +208,12 @@ def draw_end_of_game_screen(human_board,bot_board):
     end_of_game_text = font.render(text, True, (255, 255, 255))
     gameDisplay.blit(end_of_game_text, (END_OF_GAME_TEXT_OFFSET_X, END_OF_GAME_TEXT_OFFSET_Y))
 
+    draw_end_of_game_buttons()
+
+def draw_end_of_game_buttons():
+    pygame.draw.rect(gameDisplay,BUTTON_COLOR,END_OF_GAME_BACK_BUTTON)
+    pygame.draw.rect(gameDisplay, BUTTON_COLOR, PLAY_AGAIN_BUTTON)
+
 def draw_scores(board1,board2):
     name1 = font.render(board1.name, True, (255, 255, 255))
     gameDisplay.blit(name1, (BOARD1_NAME_OFFSET_X, SCORE_OFFSET_Y))

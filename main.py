@@ -195,6 +195,7 @@ def single_player():
         pygame.time.delay(TIME_DELAY)
 
     print("scores:",human_board.score,bot_board.score)
+    current_screen = "end of game"
     draw_end_of_game_screen(human_board, bot_board)
 
 def draw_end_of_game_screen(human_board,bot_board):
@@ -212,7 +213,13 @@ def draw_end_of_game_screen(human_board,bot_board):
 
 def draw_end_of_game_buttons():
     pygame.draw.rect(gameDisplay,BUTTON_COLOR,END_OF_GAME_BACK_BUTTON)
+
+    end_of_game_back_button_text = font.render(BACK_BUTTON_TEXT, True, (255, 255, 255))
+    gameDisplay.blit(end_of_game_back_button_text, (END_OF_GAME_BACK_BUTTON_TEXT_X_OFFSET, END_OF_GAME_BACK_BUTTON_TEXT_Y_OFFSET))
+
     pygame.draw.rect(gameDisplay, BUTTON_COLOR, PLAY_AGAIN_BUTTON)
+    play_again_button_text = font.render("Play Again", True, (255, 255, 255))
+    gameDisplay.blit(play_again_button_text ,(PLAY_AGAIN_BUTTON_TEXT_X_OFFSET, PLAY_AGAIN_BUTTON_TEXT_Y_OFFSET))
 
 def draw_scores(board1,board2):
     name1 = font.render(board1.name, True, (255, 255, 255))
@@ -349,6 +356,13 @@ def on_mouse_button_down(event):
         elif current_screen=="rules" or current_screen=="stats":
             if BACK_BUTTON.collidepoint((event.pos)):
                 draw_main_menu()
+
+        elif current_screen=="end of game":
+            if END_OF_GAME_BACK_BUTTON.collidepoint(event.pos):
+                draw_main_menu()
+
+            elif PLAY_AGAIN_BUTTON.collidepoint(event.pos):
+                single_player()
 
 
 

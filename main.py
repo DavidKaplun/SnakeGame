@@ -1,17 +1,25 @@
 import sys
 from board import *
-from snake import snake
-import random
-from block import block
 from constants import *
 from snake_bot import get_directions_to_apple
-
+import socket
 pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
 
 font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
 
+
+def multi_player():
+    gameDisplay.fill(WHITE)
+    global current_screen
+    current_screen = "multi player"
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((SERVER_IP, SERVER_PORT))
+    client_socket.send("Hello world!".encode('utf-8'))
+    print(client_socket.recv(1024).decode())
+    client_socket.close()
 def draw_main_menu():
     gameDisplay.fill(WHITE)
     global current_screen
@@ -56,43 +64,6 @@ def draw_stats_screen():
 
     draw_back_button()
 
-def draw_playing_screen():#will implement the functions inside later
-    #draw_board_1()
-    #draw_board_2()
-
-    #draw_snake_1()
-    #draw_snake_2()
-
-    #draw_wall_1()
-    #draw_wall_2()
-
-    #draw_apple_1()
-    #draw_apple_2()
-
-    #draw_playing_screen_buttons()
-
-    #draw_playing_screen_texts()
-
-    return
-
-
-def draw_win_screen():
-    #draw_win_lose_background()
-    #draw_win_text()
-    #draw_win_lose_buttons()
-    return
-
-def draw_lose_screen():
-    #draw_win_lose_background()
-    #draw_lose_text()
-    #draw_win_lose_buttons()
-    return
-
-def draw_win_lose_background():
-    return
-#
-#you will have to create a seprate file for the gui of the game
-#
 
 
 def draw_back_button():
@@ -268,7 +239,7 @@ def on_mouse_button_down(event):
                 single_player()
 
             if MULTI_PLAYER_BUTTON.collidepoint(event.pos):
-                print("multi player button pressed")
+                multi_player()
 
             if MY_STATS_BUTTON.collidepoint(event.pos):
                 draw_stats_screen()

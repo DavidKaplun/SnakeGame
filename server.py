@@ -34,8 +34,8 @@ def start_game_between_2_players():
     player_2_socket.send(constants.START_GAME)
 
     while game_running:
-        message_from_board1 = player_1_socket.recv(1024)
-        message_from_board2 = player_2_socket.recv(1024)
+        message_from_board1 = player_1_socket.recv(1024).decode()
+        message_from_board2 = player_2_socket.recv(1024).decode()
 
         response_to_player_1 = chose_response_to_message_during_game(message_from_board2)
         response_to_player_2 = chose_response_to_message_during_game(message_from_board1)

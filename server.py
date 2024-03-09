@@ -1,6 +1,7 @@
 import constants
 import socket
 import threading
+import dbmanager
 
 clients_sockets=[]
 clients_sockets_lock=constants.UNLOCKED
@@ -22,7 +23,6 @@ def open_socket():
             clients_sockets_lock=constants.UNLOCKED
 
 
-    return #the socket
 
 def start_game_between_2_players():
     player_1_socket=clients_sockets.pop()

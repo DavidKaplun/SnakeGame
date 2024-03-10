@@ -2,9 +2,28 @@ import constants
 import socket
 import threading
 import dbmanager
+import time
 
-clients_sockets=[]
-clients_sockets_lock=constants.UNLOCKED
+clients_sockets_searching_for_game_queue=[]
+clients_sockets_queue_lock=constants.UNLOCKED
+
+def handle_client(client_socket):
+    clients_request=''
+    while clients_request!=constants.REQUEST_GAME:
+        clients_request=client_socket.recv(1024).decode()
+        response_to_send=chose_response_to_message(clients_request)
+        client_socket.send(response_to_send.encode())
+
+    added_to_search_queue=False
+    while added_to_search_queue==False:
+        if clients_sockets_lock == constants.UNLOCKED:
+            clients_sockets_lock = constants.LOCKED
+            clients_sockets_searching_for_game_queue.append(client_socket)
+            added_to_search_queue=True
+            clients_sockets_lock = constants.UNLOCKED
+        else:
+            time.sleep(constants.WAIT_TIME)
+
 def open_socket():
     server_running=True
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,9 +32,14 @@ def open_socket():
 
     while server_running:
         communication_socket=server.accept()[0]
-        clients_sockets.append(communication_socket)
 
-        if len(clients_sockets)>=2 and clients_sockets_lock==constants.UNLOCKED:
+        thread=threading.Thread(target=handle_client, args=[communication_socket])
+        thread.start()
+        thread.join()
+
+        if len(clients_sockets_searching_for_game_queue)>=2:
+            while clients_sockets_lock==constants.LOCKED:
+                time.sleep(constants.WAIT_TIME)
             clients_sockets_lock=constants.LOCKED
             thread=threading.Thread(target=start_game_between_2_players, args=[])
             thread.start()
@@ -25,8 +49,8 @@ def open_socket():
 
 
 def start_game_between_2_players():
-    player_1_socket=clients_sockets.pop()
-    player_2_socket=clients_sockets.pop()
+    player_1_socket=clients_sockets_searching_for_game_queue.pop()
+    player_2_socket=clients_sockets_searching_for_game_queue.pop()
 
     game_running=True
 
@@ -46,8 +70,13 @@ def start_game_between_2_players():
         player_1_socket.send(response_to_player_1.encode())
         player_2_socket.send(response_to_player_2.encode())
 
-    player_1_socket.close()
-    player_2_socket.close()
+    thread = threading.Thread(target=handle_client, args=[player_1_socket])
+    thread.start()
+    thread.join()
+
+    thread2 = threading.Thread(target=handle_client, args=[player_2_socket])
+    thread2.start()
+    thread2.join()
 
 
 
@@ -67,21 +96,20 @@ def chose_response_to_message_during_game(message):
 
         case constants.SEND_BOARD:
             return constants.SEND_BOARD+" "+other_player_board+" "+is_other_player_eating_apple
-def main():
-    open_socket()
-    m=constants.REGISTER
-    chose_response_to_message("hi")
 
 def chose_response_to_message(message):
+    response=''
+    message=message.split()
     match message[0]:
         case constants.REGISTER:
-            register_user(message[1],message[2])
+            response=dbmanager.register(message[1],message[2])
         case constants.LOGIN:
-            login_user(message[1],message[2])
-def register_user(username,password):
-    return constants.SUCCESS
+            response=dbmanager.login(message[1],message[2])
+        case constants.GET_STATS:
+            response=dbmanager.get_stats(message[1])
 
-def login_user(username,password):
-    return constants.SUCCESS
+    return response
+
+
 
 open_socket()

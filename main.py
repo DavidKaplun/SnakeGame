@@ -17,7 +17,7 @@ def multi_player():
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((SERVER_IP, SERVER_PORT))
-    client_socket.send("Hello world!".encode('utf-8'))
+    client_socket.send("Hello world!".encode())
     print(client_socket.recv(1024).decode())
     client_socket.close()
 def draw_main_menu():
@@ -35,12 +35,12 @@ def draw_rules_screen():
     global current_screen
     current_screen= "rules"
 
-    title=font.render(RULES_TITLE_TEXT,True,(255,255,255))
+    title=font.render(RULES_TITLE_TEXT,True, TEXT_COLOR)
     gameDisplay.blit(title,(TITLE_X_OFFSET,TITLE_Y_OFFSET))
 
     cur_text_y=FIRST_TEXT_OFFSET+BACKGROUND_OFFSET_Y
     for line in RULES_TEXT:
-        txt = font.render(line, True, (255, 255, 255))
+        txt = font.render(line, True, TEXT_COLOR)
         gameDisplay.blit(txt, (TEXT_OFFSET_X,  cur_text_y))
         cur_text_y += TEXT_OFFSET_Y
 
@@ -49,7 +49,7 @@ def draw_stats_screen():
     gameDisplay.fill(WHITE)
     draw_background_recktangle()
 
-    title = font.render(STATS_TITLE_TEXT, True, (255, 255, 255))
+    title = font.render(STATS_TITLE_TEXT, True, TEXT_COLOR)
     gameDisplay.blit(title, (TITLE_X_OFFSET, TITLE_Y_OFFSET))
 
     global current_screen
@@ -58,7 +58,7 @@ def draw_stats_screen():
 
     cur_text_y = FIRST_TEXT_OFFSET
     for line in stats_text:
-        txt = font.render(line, True, (255, 255, 255))
+        txt = font.render(line, True, TEXT_COLOR)
         gameDisplay.blit(txt, (TEXT_OFFSET_X, cur_text_y))
         cur_text_y += TEXT_OFFSET_Y
 
@@ -68,7 +68,7 @@ def draw_stats_screen():
 
 def draw_back_button():
     pygame.draw.rect(gameDisplay,BUTTON_COLOR,BACK_BUTTON)
-    txt = font.render(BACK_BUTTON_TEXT, True, (255, 255, 255))
+    txt = font.render(BACK_BUTTON_TEXT, True, TEXT_COLOR)
     gameDisplay.blit(txt,(BACK_BUTTON_TEXT_X_OFFSET,BACK_BUTTON_TEXT_Y_OFFSET))
 
 
@@ -84,7 +84,7 @@ def draw_texts_for_buttons_in_menu():
     cur_text_y = FIRST_BUTTON_Y_OFFSET + BUTTON_TEXT_Y_OFFSET
 
     for text in MAIN_MENU_BUTTONS_TEXTS:
-        txt = font.render(text, True, (0, 0, 0))
+        txt = font.render(text, True, TEXT_COLOR)
         textRect = txt.get_rect()
         textRect.center=(BUTTONS_X_OFFSET + BUTTON_TEXT_X_OFFSET, cur_text_y)
 
@@ -183,7 +183,7 @@ def draw_end_of_game_screen(human_board,bot_board):
     else:
         text += "lost"
 
-    end_of_game_text = font.render(text, True, (255, 255, 255))
+    end_of_game_text = font.render(text, True, TEXT_COLOR)
     gameDisplay.blit(end_of_game_text, (END_OF_GAME_TEXT_OFFSET_X, END_OF_GAME_TEXT_OFFSET_Y))
 
     draw_end_of_game_buttons()
@@ -191,24 +191,24 @@ def draw_end_of_game_screen(human_board,bot_board):
 def draw_end_of_game_buttons():
     pygame.draw.rect(gameDisplay,BUTTON_COLOR,END_OF_GAME_BACK_BUTTON)
 
-    end_of_game_back_button_text = font.render(BACK_BUTTON_TEXT, True, (255, 255, 255))
+    end_of_game_back_button_text = font.render(BACK_BUTTON_TEXT, True, TEXT_COLOR)
     gameDisplay.blit(end_of_game_back_button_text, (END_OF_GAME_BACK_BUTTON_TEXT_X_OFFSET, END_OF_GAME_BACK_BUTTON_TEXT_Y_OFFSET))
 
     pygame.draw.rect(gameDisplay, BUTTON_COLOR, PLAY_AGAIN_BUTTON)
-    play_again_button_text = font.render("Play Again", True, (255, 255, 255))
+    play_again_button_text = font.render("Play Again", True, TEXT_COLOR)
     gameDisplay.blit(play_again_button_text ,(PLAY_AGAIN_BUTTON_TEXT_X_OFFSET, PLAY_AGAIN_BUTTON_TEXT_Y_OFFSET))
 
 def draw_scores(board1,board2):
-    name1 = font.render(board1.name, True, (255, 255, 255))
+    name1 = font.render(board1.name, True, TEXT_COLOR)
     gameDisplay.blit(name1, (BOARD1_NAME_OFFSET_X, SCORE_OFFSET_Y))
 
-    score1 = font.render(str(board1.score), True, (255, 255, 255))
+    score1 = font.render(str(board1.score), True, TEXT_COLOR)
     gameDisplay.blit(score1, (BOARD1_SCORE_OFFSET_X, SCORE_OFFSET_Y))
 
-    name2 = font.render(board2.name, True, (255, 255, 255))
+    name2 = font.render(board2.name, True, TEXT_COLOR)
     gameDisplay.blit(name2, (BOARD2_NAME_OFFSET_X, SCORE_OFFSET_Y))
 
-    score2 = font.render(str(board2.score), True, (255, 255, 255))
+    score2 = font.render(str(board2.score), True, TEXT_COLOR)
     gameDisplay.blit(score2, (BOARD2_SCORE_OFFSET_X, SCORE_OFFSET_Y))
 
 def update_board(board):

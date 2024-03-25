@@ -1,4 +1,7 @@
 import sys
+
+import pygame
+
 from board import *
 from constants import *
 from snake_bot import get_directions_to_apple
@@ -9,6 +12,71 @@ gameDisplay.fill(WHITE)
 
 font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
 
+username_entry_active = False
+password_entry_active = False
+
+username_entry_text = ""
+password_entry_text = ""
+
+color_inactive = pygame.Color('lightskyblue3')
+color_active = pygame.Color('dodgerblue2')
+
+signed_in=False
+
+global socket_to_server
+try:
+    socket_with_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_with_server.connect((SERVER_IP, SERVER_PORT))
+except:
+    pass
+
+def login():
+    gameDisplay.fill(WHITE)
+    global current_screen,username_entry_text,password_entry_text,username_entry_active,password_entry_active
+    current_screen="login"
+
+    username_entry_text = ""
+    password_entry_text = ""
+
+    username_entry_active = False
+    password_entry_active = False
+
+    draw_login_page()
+
+    while not signed_in:
+        pygame.display.update()
+        check_buttons_pressed()
+        pygame.time.delay(TIME_DELAY)
+
+
+
+def draw_login_page():
+    username_text = font.render("Username:", True, TEXT_COLOR)
+    gameDisplay.blit(username_text, (USERNAME_TEXT_OFFSET_X, USERNAME_TEXT_OFFSET_Y))
+
+    password_text = font.render("Password:", True, TEXT_COLOR)
+    gameDisplay.blit(password_text, (PASSWORD_TEXT_OFFSET_X, PASSWORD_TEXT_OFFSET_Y))
+
+    draw_entry_rects()
+    draw_entry_texts()
+
+def draw_entry_texts():
+    username_entry_text_surface = font.render(username_entry_text, True, TEXT_COLOR)
+    gameDisplay.blit(username_entry_text_surface, (USERNAME_ENTRY_OFFSET_X, USERNAME_ENTRY_OFFSET_Y))
+
+    password_entry_text_surface = font.render(password_entry_text, True, TEXT_COLOR)
+    gameDisplay.blit(password_entry_text_surface, (PASSWORD_ENTRY_OFFSET_X, PASSWORD_ENTRY_OFFSET_Y))
+
+def draw_entry_rects():
+    if username_entry_active:
+        pygame.draw.rect(gameDisplay, color_active, USERNAME_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, color_inactive, PASSWORD_INPUT_RECT)
+    elif password_entry_active:
+        pygame.draw.rect(gameDisplay, color_inactive, USERNAME_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, color_active, PASSWORD_INPUT_RECT)
+    else:
+        pygame.draw.rect(gameDisplay, color_inactive, USERNAME_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, color_inactive, PASSWORD_INPUT_RECT)
 
 def multi_player():
     gameDisplay.fill(WHITE)
@@ -95,9 +163,8 @@ def draw_background_recktangle():
     pygame.draw.rect(gameDisplay, BACKGROUND_COLOR, (BACKGROUND_OFFSET_X, BACKGROUND_OFFSET_Y,  BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
 
 def main():
-    global current_screen
-    current_screen="main menu"
-    draw_main_menu()
+
+    login()
 
     while True:
         pygame.display.update()
@@ -148,7 +215,7 @@ def single_player():
         draw_board(human_board)
         draw_board(bot_board)
         pygame.display.update()
-        check_keyboard_pressed(human_board)
+        check_keyboard_pressed_during_game(human_board)
 
         draw_board(human_board)
         draw_board(bot_board)
@@ -215,6 +282,56 @@ def update_board(board):
     board.apple=board.create_apple()
     board.wall=board.generate_wall()
 
+
+
+def check_keyboard_pressed():
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.KEYDOWN:
+            respond_to_key_pressed(event)
+
+def respond_to_key_pressed(event):
+    if username_entry_active:
+        global username_entry_text
+        if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
+            username_entry_text = username_entry_text[:-1]
+        else:
+            username_entry_text += event.unicode()
+    elif password_entry_active:
+        global password_entry_text
+        if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
+            password_entry_text = password_entry_text[:-1]
+        else:
+            password_entry_text += event.unicode()
+
+
+
+def check_keyboard_pressed_during_game(human_board):
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.KEYDOWN:
+            respond_to_key_pressed_during_game(event.key,human_board)
+
+
+def respond_to_key_pressed_during_game(button_pressed,human_board):
+    cur_dir = human_board.snake.get_direction()
+    new_dir=""
+    match button_pressed:
+        case pygame.K_UP:
+            new_dir = "up"
+        case pygame.K_DOWN:
+            new_dir = "down"
+        case pygame.K_RIGHT:
+            new_dir = "right"
+        case pygame.K_LEFT:
+            new_dir = "left"
+        case _:
+            return
+
+    human_board.snake.add_turn(new_dir)
+
+
+
 def check_buttons_pressed():
     events = pygame.event.get()
     for event in events:
@@ -223,14 +340,7 @@ def check_buttons_pressed():
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            # Call the on_mouse_button_down() function
             on_mouse_button_down(event)
-
-def check_keyboard_pressed(human_board):
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.KEYDOWN:
-            respond_to_key_pressed(event.key,human_board)
 
 def on_mouse_button_down(event):
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -262,24 +372,19 @@ def on_mouse_button_down(event):
             elif PLAY_AGAIN_BUTTON.collidepoint(event.pos):
                 single_player()
 
+        elif current_screen=="login" or current_screen=="register":
+            global username_entry_active, password_entry_active
+            if USERNAME_INPUT_RECT.collidepoint(event.pos):
+                username_entry_active=True
+                password_entry_active=False
+                draw_entry_rects()
+            elif PASSWORD_INPUT_RECT.collidepoint(event.pos):
+                username_entry_active = False
+                password_entry_active = True
+                draw_entry_rects()
 
 
-def respond_to_key_pressed(button_pressed,human_board):
-    cur_dir = human_board.snake.get_direction()
-    new_dir=""
-    match button_pressed:
-        case pygame.K_UP:
-            new_dir = "up"
-        case pygame.K_DOWN:
-            new_dir = "down"
-        case pygame.K_RIGHT:
-            new_dir = "right"
-        case pygame.K_LEFT:
-            new_dir = "left"
-        case _:
-            return
 
-    human_board.snake.add_turn(new_dir)
 
 def distance_between_blocks(block1,block2):
     return abs(block1.x-block2.x)+abs(block1.y-block2.y)

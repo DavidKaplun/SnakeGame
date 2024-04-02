@@ -18,45 +18,116 @@ password_entry_active = False
 username_entry_text = ""
 password_entry_text = ""
 
-color_inactive = pygame.Color('lightskyblue3')
-color_active = pygame.Color('dodgerblue2')
+session_username=""
 
-signed_in=False
+socket_with_server=""
+def try_to_connect_to_server():
+    global socket_with_server
+    try:
+        socket_with_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_with_server.connect((SERVER_IP, SERVER_PORT))
+    except Exception as e:
+        print(e)
 
-global socket_to_server
-try:
-    socket_with_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket_with_server.connect((SERVER_IP, SERVER_PORT))
-except:
-    pass
+try_to_connect_to_server()
 
-def login():
-    gameDisplay.fill(WHITE)
-    global current_screen,username_entry_text,password_entry_text,username_entry_active,password_entry_active
-    current_screen="login"
-
+def reset_entries():
+    global username_entry_text, password_entry_text, username_entry_active, password_entry_active
     username_entry_text = ""
     password_entry_text = ""
 
     username_entry_active = False
     password_entry_active = False
 
-    draw_login_page()
-
-    while not signed_in:
-        pygame.display.update()
-        check_buttons_pressed()
-        pygame.time.delay(TIME_DELAY)
-
-
-
 def draw_login_page():
+    reset_entries()
+
+    global current_screen
+    current_screen = "login"
+    gameDisplay.fill(WHITE)
+
+
+    login_text=font.render(LOGIN_TEXT, True, TEXT_COLOR)
+    gameDisplay.blit(login_text, (LOGIN_TEXT_OFFSET_X,LOGIN_TEXT_OFFSET_Y))
+
     username_text = font.render("Username:", True, TEXT_COLOR)
     gameDisplay.blit(username_text, (USERNAME_TEXT_OFFSET_X, USERNAME_TEXT_OFFSET_Y))
 
     password_text = font.render("Password:", True, TEXT_COLOR)
     gameDisplay.blit(password_text, (PASSWORD_TEXT_OFFSET_X, PASSWORD_TEXT_OFFSET_Y))
 
+    draw_entries()
+    pygame.draw.rect(gameDisplay, APPLE_COLOR, LOGIN_BUTTON)
+    login_button_text=font.render(LOGIN_TEXT, True, TEXT_COLOR)
+    gameDisplay.blit(login_button_text,(LOGIN_BUTTON_OFFSET_X, LOGIN_BUTTON_OFFSET_Y))
+
+    dont_have_account_text=font.render(DONT_HAVE_ACCOUNT_TEXT, True, TEXT_COLOR)
+    gameDisplay.blit(dont_have_account_text, (DONT_HAVE_ACCOUNT_TEXT_OFFSET_X, DONT_HAVE_ACCOUNT_TEXT_OFFSET_Y))
+
+def draw_register_page():
+    reset_entries()
+
+    global current_screen
+    current_screen = "register"
+    gameDisplay.fill(WHITE)
+
+    register_text = font.render(REGISTER_TEXT, True, TEXT_COLOR)
+    gameDisplay.blit(register_text, (REGISTER_TEXT_OFFSET_X, REGISTER_TEXT_OFFSET_Y))
+
+    username_text = font.render("Username:", True, TEXT_COLOR)
+    gameDisplay.blit(username_text, (USERNAME_TEXT_OFFSET_X, USERNAME_TEXT_OFFSET_Y))
+
+    password_text = font.render("Password:", True, TEXT_COLOR)
+    gameDisplay.blit(password_text, (PASSWORD_TEXT_OFFSET_X, PASSWORD_TEXT_OFFSET_Y))
+
+    draw_entries()
+    pygame.draw.rect(gameDisplay, APPLE_COLOR, REGISTER_BUTTON)
+    register_button_text = font.render(REGISTER_TEXT, True, TEXT_COLOR)
+    gameDisplay.blit(register_button_text, (REGISTER_BUTTON_OFFSET_X, REGISTER_BUTTON_OFFSET_Y))
+
+    already_have_account_text = font.render(ALREADY_HAVE_ACCOUNT_TEXT, True, TEXT_COLOR)
+    gameDisplay.blit(already_have_account_text, (ALREADY_HAVE_ACCOUNT_TEXT_OFFSET_X, ALREADY_HAVE_ACCOUNT_TEXT_OFFSET_Y))
+
+def request_login(username, password):
+    response=-1
+    try:
+        socket_with_server.send(("2 "+username+" "+password).encode())
+        response=socket_with_server.recv(1024).decode()
+    except Exception as e:
+        print(e)
+
+    if response==SUCCESS:
+        global session_username
+        draw_main_menu()
+        session_username=username[:]
+
+    elif response==ERROR:
+        error_message=font.render(LOGIN_ERROR_MESSAGE, True, APPLE_COLOR)
+        gameDisplay.blit(error_message,(LOGIN_ERROR_MESSAGE_OFFSET_X, LOGIN_ERROR_MESSAGE_OFFSET_Y))
+        reset_entries()
+        draw_entries()
+
+def request_registration(username, password):
+    response = -1
+    try:
+        socket_with_server.send(("1 " + username + " " + password).encode())
+        response = socket_with_server.recv(1024).decode()
+        print("response is:",response)
+    except Exception as e:
+        print(e)
+    print("response is:", response)
+    if response == SUCCESS:
+        global session_username
+        draw_main_menu()
+        session_username = username[:]
+
+    elif response == ERROR:
+        error_message = font.render(REGISTER_ERROR_MESSAGE, True, APPLE_COLOR)
+        gameDisplay.blit(error_message, (REGISTER_ERROR_MESSAGE_OFFSET_X, REGISTER_ERROR_MESSAGE_OFFSET_Y))
+        reset_entries()
+        draw_entries()
+
+def draw_entries():
     draw_entry_rects()
     draw_entry_texts()
 
@@ -69,14 +140,14 @@ def draw_entry_texts():
 
 def draw_entry_rects():
     if username_entry_active:
-        pygame.draw.rect(gameDisplay, color_active, USERNAME_INPUT_RECT)
-        pygame.draw.rect(gameDisplay, color_inactive, PASSWORD_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, COLOR_ACTIVE, USERNAME_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, COLOR_INACTIVE, PASSWORD_INPUT_RECT)
     elif password_entry_active:
-        pygame.draw.rect(gameDisplay, color_inactive, USERNAME_INPUT_RECT)
-        pygame.draw.rect(gameDisplay, color_active, PASSWORD_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, COLOR_INACTIVE, USERNAME_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, COLOR_ACTIVE, PASSWORD_INPUT_RECT)
     else:
-        pygame.draw.rect(gameDisplay, color_inactive, USERNAME_INPUT_RECT)
-        pygame.draw.rect(gameDisplay, color_inactive, PASSWORD_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, COLOR_INACTIVE, USERNAME_INPUT_RECT)
+        pygame.draw.rect(gameDisplay, COLOR_INACTIVE, PASSWORD_INPUT_RECT)
 
 def multi_player():
     gameDisplay.fill(WHITE)
@@ -122,7 +193,8 @@ def draw_stats_screen():
 
     global current_screen
     current_screen = "stats"
-    stats_text = ["rating:0","wins:0","loses:0","w/l:0%"]  # it will change when I connect the database
+    stats_text = ["rating:0", "wins:0", "loses:0", "w/l:0%"]  # it will change when I connect the database
+    stats_text=get_users_stats()
 
     cur_text_y = FIRST_TEXT_OFFSET
     for line in stats_text:
@@ -132,7 +204,15 @@ def draw_stats_screen():
 
     draw_back_button()
 
-
+def get_users_stats():
+    response=""
+    try:
+        socket_with_server.send(("3 "+session_username).encode())
+        response=socket_with_server.recv(1024).decode()
+    except Exception as e:
+        print(e)
+    print(response)
+    return response
 
 def draw_back_button():
     pygame.draw.rect(gameDisplay,BUTTON_COLOR,BACK_BUTTON)
@@ -164,7 +244,7 @@ def draw_background_recktangle():
 
 def main():
 
-    login()
+    draw_login_page()
 
     while True:
         pygame.display.update()
@@ -282,27 +362,21 @@ def update_board(board):
     board.apple=board.create_apple()
     board.wall=board.generate_wall()
 
-
-
-def check_keyboard_pressed():
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.KEYDOWN:
-            respond_to_key_pressed(event)
-
 def respond_to_key_pressed(event):
     if username_entry_active:
         global username_entry_text
         if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
             username_entry_text = username_entry_text[:-1]
         else:
-            username_entry_text += event.unicode()
+            username_entry_text += event.unicode
     elif password_entry_active:
         global password_entry_text
         if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
             password_entry_text = password_entry_text[:-1]
         else:
-            password_entry_text += event.unicode()
+            password_entry_text += event.unicode
+
+    draw_entries()
 
 
 
@@ -342,8 +416,11 @@ def check_buttons_pressed():
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             on_mouse_button_down(event)
 
+        if event.type == pygame.KEYDOWN:
+            respond_to_key_pressed(event)
+
 def on_mouse_button_down(event):
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+    if event.type == pygame.MOUSEBUTTONDOWN and event.button == CLICKED:
         if current_screen=="main menu":
             if SINGLE_PLAYER_BUTTON.collidepoint(event.pos):
                 single_player()
@@ -362,7 +439,7 @@ def on_mouse_button_down(event):
                 sys.exit()
 
         elif current_screen=="rules" or current_screen=="stats":
-            if BACK_BUTTON.collidepoint((event.pos)):
+            if BACK_BUTTON.collidepoint(event.pos):
                 draw_main_menu()
 
         elif current_screen=="end of game":
@@ -372,19 +449,35 @@ def on_mouse_button_down(event):
             elif PLAY_AGAIN_BUTTON.collidepoint(event.pos):
                 single_player()
 
-        elif current_screen=="login" or current_screen=="register":
-            global username_entry_active, password_entry_active
-            if USERNAME_INPUT_RECT.collidepoint(event.pos):
-                username_entry_active=True
-                password_entry_active=False
-                draw_entry_rects()
-            elif PASSWORD_INPUT_RECT.collidepoint(event.pos):
-                username_entry_active = False
-                password_entry_active = True
-                draw_entry_rects()
+        elif current_screen=="login":
+            respond_if_clicked_on_entries(event)
+
+            if LOGIN_BUTTON.collidepoint(event.pos):
+                request_login(username_entry_text, password_entry_text)
+
+            elif DONT_HAVE_ACCOUNT_CLICK_BOX.collidepoint(event.pos):
+                draw_register_page()
+
+        elif current_screen=="register":
+            respond_if_clicked_on_entries(event)
+
+            if REGISTER_BUTTON.collidepoint(event.pos):
+                request_registration(username_entry_text, password_entry_text)
+
+            elif DONT_HAVE_ACCOUNT_CLICK_BOX.collidepoint(event.pos):
+                draw_login_page()
 
 
-
+def respond_if_clicked_on_entries(event):
+    global username_entry_active, password_entry_active
+    if USERNAME_INPUT_RECT.collidepoint(event.pos):
+        username_entry_active = True
+        password_entry_active = False
+        draw_entries()
+    elif PASSWORD_INPUT_RECT.collidepoint(event.pos):
+        username_entry_active = False
+        password_entry_active = True
+        draw_entries()
 
 def distance_between_blocks(block1,block2):
     return abs(block1.x-block2.x)+abs(block1.y-block2.y)

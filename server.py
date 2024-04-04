@@ -84,7 +84,7 @@ def chose_response_to_message_during_game(message):
     message_list=message.split(" ")
 
     message_code=message_list[0]
-    other_player_board=message_list[1]
+    other_player_board=message_list[1]#could be problems at the end of the game
     is_other_player_eating_apple=message_list[2]
 
     match message_code:

@@ -149,16 +149,8 @@ def draw_entry_rects():
         pygame.draw.rect(gameDisplay, COLOR_INACTIVE, USERNAME_INPUT_RECT)
         pygame.draw.rect(gameDisplay, COLOR_INACTIVE, PASSWORD_INPUT_RECT)
 
-def multi_player():
-    gameDisplay.fill(WHITE)
-    global current_screen
-    current_screen = "multi player"
 
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((SERVER_IP, SERVER_PORT))
-    client_socket.send("Hello world!".encode())
-    print(client_socket.recv(1024).decode())
-    client_socket.close()
+
 def draw_main_menu():
     gameDisplay.fill(WHITE)
     global current_screen
@@ -193,8 +185,9 @@ def draw_stats_screen():
 
     global current_screen
     current_screen = "stats"
-    stats_text = ["rating:0", "wins:0", "loses:0", "w/l:0%"]  # it will change when I connect the database
-    stats_text=get_users_stats()
+
+    stats_text=get_users_stats().split(" ")[::2]
+    stats_text=["rating:"+stats_text[0],"wins:"+stats_text[1],"loses:"+stats_text[2],"w/l:"+stats_text[3]]
 
     cur_text_y = FIRST_TEXT_OFFSET
     for line in stats_text:
@@ -211,7 +204,6 @@ def get_users_stats():
         response=socket_with_server.recv(1024).decode()
     except Exception as e:
         print(e)
-    print(response)
     return response
 
 def draw_back_button():
@@ -252,12 +244,28 @@ def main():
         pygame.time.delay(TIME_DELAY)
 
 
+def multi_player():
+    gameDisplay.fill(WHITE)
+    global current_screen
+    current_screen = "multi player"
+
+    socket_with_server.send(REQUEST_GAME.encode())
+    response = socket_with_server.recv(BUF_SIZE).decode()
+
+    if response == SEARCHING_FOR_PLAYERS:
+        print("searching for fucking players")
+
+    player_board=board(BOARD1_OFFSET_X,BOARD_OFFSET_Y,session_username)
+    prev_dir=""
+
+
+
 def single_player():
     gameDisplay.fill(WHITE)
     global current_screen
     current_screen = "single player"
 
-    human_board=board(BOARD1_OFFSET_X,BOARD_OFFSET_Y,"human")
+    human_board=board(BOARD1_OFFSET_X,BOARD_OFFSET_Y, session_username)
     bot_board=board(BOARD2_OFFSET_X, BOARD_OFFSET_Y,"bot")
     draw_scores(human_board, bot_board)
     prev_dir1, prev_dir2="",""
@@ -363,20 +371,21 @@ def update_board(board):
     board.wall=board.generate_wall()
 
 def respond_to_key_pressed(event):
-    if username_entry_active:
-        global username_entry_text
-        if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
-            username_entry_text = username_entry_text[:-1]
-        else:
-            username_entry_text += event.unicode
-    elif password_entry_active:
-        global password_entry_text
-        if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
-            password_entry_text = password_entry_text[:-1]
-        else:
-            password_entry_text += event.unicode
+    if current_screen=="login" or current_screen=="register":
+        if username_entry_active:
+            global username_entry_text
+            if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
+                username_entry_text = username_entry_text[:-1]
+            else:
+                username_entry_text += event.unicode
+        elif password_entry_active:
+            global password_entry_text
+            if event.key==pygame.K_BACKSPACE:#later create a cover for the event that user presses enter
+                password_entry_text = password_entry_text[:-1]
+            else:
+                password_entry_text += event.unicode
 
-    draw_entries()
+        draw_entries()
 
 
 

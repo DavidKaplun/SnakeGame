@@ -6,6 +6,7 @@ from board import *
 from constants import *
 from snake_bot import get_directions_to_apple
 import socket
+import re
 pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
@@ -255,9 +256,103 @@ def multi_player():
     if response == SEARCHING_FOR_PLAYERS:
         print("searching for fucking players")
 
-    player_board=board(BOARD1_OFFSET_X,BOARD_OFFSET_Y,session_username)
-    prev_dir=""
+    response = socket_with_server.recv(BUF_SIZE)#this is not to get a message. this is to wait until the server sends a signal that we can start
 
+    player_board=board(BOARD1_OFFSET_X, BOARD_OFFSET_Y, session_username)
+    prev_dir=""
+    rival_player_score=0
+    rival_board_grid=[]
+    rival_player_eating_apple=False
+
+    while player_board.snake_is_alive() and response!=WON_GAME and response!=LOST_GAME:
+        player_string_board=convert_board_to_string(player_board)
+        is_player_snake_eating_apple=str(player_board.snake_eating_apple())
+
+        socket_with_server.send((SEND_BOARD+"-"+player_string_board+"-"+is_player_snake_eating_apple).encode())
+        response=socket_with_server.recv(BUF_SIZE).decode()
+
+
+        if response[0]==SEND_BOARD:
+            message_code,rival_string_board, rival_player_eating_apple=response.split("-")
+
+        #rival_player_eating_apple=bool(rival_player_eating_apple)
+        player_board.snake.move()
+
+        if player_board.snake_eating_apple():
+            prev_dir = player_board.snake.get_last_block().dir
+            player_board.snake.grow()
+            update_board(player_board)
+
+            player_board.score+=1
+
+        if rival_player_eating_apple==True:
+            rival_player_score+=1
+            update_board(player_board)
+            print("updating the board")
+
+
+        draw_board(player_board)
+        draw_string_board(rival_string_board)
+        pygame.display.update()
+
+        last_snake_block=player_board.snake.get_last_block()
+
+        if last_snake_block.dir == "":
+            if distance_between_blocks(player_board.snake.blocks[-2], last_snake_block) >= SQUARE_SIZE:
+                last_snake_block.turn(prev_dir)
+
+        pygame.time.delay(TIME_DELAY)
+
+    if response==WON_GAME:
+        print(session_username+"lost game")
+    else:
+        print(session_username+"won game")
+
+
+def convert_board_to_string(board):
+    board_string = ""
+    for block in board.snake.get_blocks():
+        board_string += str(block.x) + "," + str(block.y) +"."
+    board_string=board_string[:-1]
+    board_string += "*"
+
+    if board.wall != INCONSTRACTABLE:
+        for block in board.wall:
+            board_string += str(block.x) + "," + str(block.y)+"."
+        board_string = board_string[:-1]
+    else:
+        board_string += "."
+
+    board_string += "*"
+    board_string += str(board.apple.x) + "," + str(board.apple.y)
+    return board_string
+
+
+def draw_string_board(string_board):
+    color = 0
+    for y in range(BOARD_HEIGHT):
+        for x in range(BOARD_LENGTH):
+            if color % 2 == 0:
+                pygame.draw.rect(gameDisplay, WHITE,[SQUARE_SIZE * x + BOARD2_OFFSET_X, SQUARE_SIZE * y + BOARD_OFFSET_Y, SQUARE_SIZE, SQUARE_SIZE])
+            else:
+                pygame.draw.rect(gameDisplay, BLACK,[SQUARE_SIZE * x + BOARD2_OFFSET_X, SQUARE_SIZE * y + BOARD_OFFSET_Y, SQUARE_SIZE, SQUARE_SIZE])
+            color += 1
+
+    snake_blocks, wall, apple = string_board.split("*")
+    snake_blocks=snake_blocks.split(".")
+
+    for block in snake_blocks:
+        block_x, block_y = block.split(",")
+        pygame.draw.rect(gameDisplay, SNAKE_COLOR, [int(block_x) + BOARD2_OFFSET_X, int(block_y), SQUARE_SIZE, SQUARE_SIZE])
+
+    if wall != ".":
+        wall = wall.split(".")
+        for block in wall:
+            block_x, block_y = block.split(",")
+            pygame.draw.rect(gameDisplay, WALL_COLOR, [int(block_x) + BOARD2_OFFSET_X, int(block_y), SQUARE_SIZE, SQUARE_SIZE])
+
+    apple_x, apple_y = apple.split(",")
+    pygame.draw.rect(gameDisplay, APPLE_COLOR, [int(apple_x) + BOARD2_OFFSET_X, int(apple_y), SQUARE_SIZE, SQUARE_SIZE])
 
 
 def single_player():

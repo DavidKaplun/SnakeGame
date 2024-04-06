@@ -187,7 +187,7 @@ LOCKED=1
 WAIT_TIME=0.5
 
 #buf size
-BUF_SIZE=1024
+BUF_SIZE=4096
 
 
 
@@ -262,3 +262,8 @@ REGISTER_ERROR_MESSAGE_OFFSET_Y=9*SQUARE_SIZE
 #entries color constants
 COLOR_ACTIVE=pygame.Color('dodgerblue2')
 COLOR_INACTIVE=pygame.Color('lightskyblue3')
+
+#grid resresentation
+GRID_SNAKE_BLOCK='1'
+GRID_APPLE='2'
+GRID_WALL='3'

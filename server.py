@@ -85,11 +85,11 @@ def start_game_between_2_players():
 
     thread = threading.Thread(target=handle_client, args=[player_1_socket])
     thread.start()
-    thread.join()
+
 
     thread2 = threading.Thread(target=handle_client, args=[player_2_socket])
     thread2.start()
-    thread2.join()
+
 
 
 

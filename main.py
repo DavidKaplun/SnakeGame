@@ -12,6 +12,7 @@ gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
 
 font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
+searching_for_players_font=pygame.font.Font('freesansbold.ttf', SEARCHING_FOR_PLAYERS_FONT_SIZE)
 
 username_entry_active = False
 password_entry_active = False
@@ -247,6 +248,10 @@ def main():
 
 def multi_player():
     gameDisplay.fill(WHITE)
+
+    searching_for_players_text = font.render("searching for players...", True, TEXT_COLOR)
+    gameDisplay.blit(searching_for_players_text, (SEARCHING_FOR_PLAYERS_OFFSET_X, SEARCHING_FOR_PLAYERS_OFFSET_Y))
+
     pygame.display.update()
     global current_screen
     current_screen = "multi player"
@@ -263,6 +268,7 @@ def multi_player():
     prev_dir=""
     rival_player_score=0
     rival_player_eating_apple=False
+    gameDisplay.fill(WHITE)
 
     while player_board.snake_is_alive() and response!=WON_GAME and response!=LOST_GAME:
         player_string_board=convert_board_to_string(player_board)
@@ -273,6 +279,8 @@ def multi_player():
 
         if response[0]==SEND_BOARD:
             message_code,rival_string_board, rival_player_eating_apple=response.split("-")
+        else:
+            break
 
         player_board.snake.move()
 
@@ -300,6 +308,11 @@ def multi_player():
 
 
         pygame.time.delay(TIME_DELAY)
+
+    if player_board.snake_is_alive()==False:
+        socket_with_server.send(LOST_GAME.encode())
+    else:
+        socket_with_server.send(WON_GAME.encode())
 
     pygame.draw.rect(gameDisplay, BACKGROUND_COLOR,[END_OF_GAME_BACKGROUND_X_OFFSET, END_OF_GAME_BACKGROUND_Y_OFFSET, END_OF_GAME_BACKGROUND_LENGTH, END_OF_GAME_BACKGROUND_HEIGHT])
 

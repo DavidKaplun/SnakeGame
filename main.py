@@ -247,6 +247,7 @@ def main():
 
 def multi_player():
     gameDisplay.fill(WHITE)
+    pygame.display.update()
     global current_screen
     current_screen = "multi player"
 
@@ -254,14 +255,13 @@ def multi_player():
     response = socket_with_server.recv(BUF_SIZE).decode()
 
     if response == SEARCHING_FOR_PLAYERS:
-        print("searching for fucking players")
+        print(session_username+" is searching for players")
 
     response = socket_with_server.recv(BUF_SIZE)#this is not to get a message. this is to wait until the server sends a signal that we can start
 
     player_board=board(BOARD1_OFFSET_X, BOARD_OFFSET_Y, session_username)
     prev_dir=""
     rival_player_score=0
-    rival_board_grid=[]
     rival_player_eating_apple=False
 
     while player_board.snake_is_alive() and response!=WON_GAME and response!=LOST_GAME:
@@ -271,11 +271,9 @@ def multi_player():
         socket_with_server.send((SEND_BOARD+"-"+player_string_board+"-"+is_player_snake_eating_apple).encode())
         response=socket_with_server.recv(BUF_SIZE).decode()
 
-
         if response[0]==SEND_BOARD:
             message_code,rival_string_board, rival_player_eating_apple=response.split("-")
 
-        #rival_player_eating_apple=bool(rival_player_eating_apple)
         player_board.snake.move()
 
         if player_board.snake_eating_apple():
@@ -288,26 +286,47 @@ def multi_player():
         if rival_player_eating_apple==True:
             rival_player_score+=1
             update_board(player_board)
-            print("updating the board")
-
 
         draw_board(player_board)
         draw_string_board(rival_string_board)
+        draw_player_score(player_board,rival_player_score,"user69")
         pygame.display.update()
-
+        pygame.event.pump()
         last_snake_block=player_board.snake.get_last_block()
 
         if last_snake_block.dir == "":
             if distance_between_blocks(player_board.snake.blocks[-2], last_snake_block) >= SQUARE_SIZE:
                 last_snake_block.turn(prev_dir)
 
+
         pygame.time.delay(TIME_DELAY)
 
-    if response==WON_GAME:
-        print(session_username+"lost game")
-    else:
-        print(session_username+"won game")
+    pygame.draw.rect(gameDisplay, BACKGROUND_COLOR,[END_OF_GAME_BACKGROUND_X_OFFSET, END_OF_GAME_BACKGROUND_Y_OFFSET, END_OF_GAME_BACKGROUND_LENGTH, END_OF_GAME_BACKGROUND_HEIGHT])
 
+    text=""
+    if response==LOST_GAME or player_board.snake_is_alive()==False:
+        text="you lost game"
+    else:
+        text="you won game"
+
+    end_of_game_text = font.render(text, True, TEXT_COLOR)
+    gameDisplay.blit(end_of_game_text, (END_OF_GAME_TEXT_OFFSET_X, END_OF_GAME_TEXT_OFFSET_Y))
+
+    draw_end_of_game_buttons()
+    current_screen="end of multiplayer game"
+
+def draw_player_score(board,rival_score,rival_name):
+    name1 = font.render(session_username, True, TEXT_COLOR)
+    gameDisplay.blit(name1, (BOARD1_NAME_OFFSET_X, SCORE_OFFSET_Y))
+
+    score1 = font.render(str(board.score), True, TEXT_COLOR)
+    gameDisplay.blit(score1, (BOARD1_SCORE_OFFSET_X, SCORE_OFFSET_Y))
+
+    name2 = font.render(rival_name, True, TEXT_COLOR)
+    gameDisplay.blit(name2, (BOARD2_NAME_OFFSET_X, SCORE_OFFSET_Y))
+
+    score2 = font.render(str(rival_score), True, TEXT_COLOR)
+    gameDisplay.blit(score2, (BOARD2_SCORE_OFFSET_X, SCORE_OFFSET_Y))
 
 def convert_board_to_string(board):
     board_string = ""
@@ -329,6 +348,7 @@ def convert_board_to_string(board):
 
 
 def draw_string_board(string_board):
+    print("enemy board ",string_board)
     color = 0
     for y in range(BOARD_HEIGHT):
         for x in range(BOARD_LENGTH):
@@ -570,6 +590,12 @@ def on_mouse_button_down(event):
 
             elif DONT_HAVE_ACCOUNT_CLICK_BOX.collidepoint(event.pos):
                 draw_login_page()
+        elif current_screen=="end of multiplayer game":
+            if END_OF_GAME_BACK_BUTTON.collidepoint(event.pos):
+                draw_main_menu()
+
+            elif PLAY_AGAIN_BUTTON.collidepoint(event.pos):
+                multi_player()
 
 
 def respond_if_clicked_on_entries(event):

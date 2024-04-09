@@ -14,43 +14,52 @@ def handle_client(client_socket):
         clients_request=client_socket.recv(constants.BUF_SIZE).decode()
         response_to_send=chose_response_to_message(clients_request)
         client_socket.send(response_to_send.encode())
-
+    print("requested game")
     added_to_search_queue=False
     while added_to_search_queue==False:
         if clients_sockets_queue_lock == constants.UNLOCKED:
             clients_sockets_queue_lock = constants.LOCKED
             clients_sockets_searching_for_game_queue.append(client_socket)
+            print("i'm stuck please unstuck me")
+            print(len(clients_sockets_searching_for_game_queue))
             added_to_search_queue=True
             clients_sockets_queue_lock = constants.UNLOCKED
+
         else:
             time.sleep(constants.WAIT_TIME)
 
-def open_socket():
+def start_game():
     global clients_sockets_queue_lock
+    while True:
+        if len(clients_sockets_searching_for_game_queue) >= 2:
+            while clients_sockets_queue_lock == constants.LOCKED:
+                time.sleep(constants.WAIT_TIME)
+            clients_sockets_queue_lock = constants.LOCKED
+            thread = threading.Thread(target=start_game_between_2_players, args=[])
+            thread.start()
+            clients_sockets_queue_lock = constants.UNLOCKED
+        time.sleep(constants.WAIT_TIME)
+
+
+def open_socket():
     server_running=True
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((constants.SERVER_IP, constants.SERVER_PORT))
     server.listen(constants.MAX_QUEUE_LENGTH)
 
-    while server_running:
-        communication_socket=server.accept()[0]
+    thread=threading.Thread(target=start_game, args=[])
+    thread.start()
 
+    while server_running:
+        communication_socket, address=server.accept()
         thread=threading.Thread(target=handle_client, args=[communication_socket])
         thread.start()
-        thread.join()
 
-        if len(clients_sockets_searching_for_game_queue)>=2:
-            while clients_sockets_queue_lock==constants.LOCKED:
-                time.sleep(constants.WAIT_TIME)
-            clients_sockets_queue_lock=constants.LOCKED
-            thread=threading.Thread(target=start_game_between_2_players, args=[])
-            thread.start()
-            thread.join()
-            clients_sockets_queue_lock=constants.UNLOCKED
 
 
 
 def start_game_between_2_players():
+    print("started game")
     global clients_sockets_searching_for_game_queue
 
     player_1_socket=clients_sockets_searching_for_game_queue.pop()
@@ -62,7 +71,6 @@ def start_game_between_2_players():
     player_2_socket.send(constants.START_GAME.encode())
 
     while game_running:
-        print("started game")
         message_from_board1 = player_1_socket.recv(constants.BUF_SIZE).decode()
         message_from_board2 = player_2_socket.recv(constants.BUF_SIZE).decode()
 

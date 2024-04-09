@@ -14,14 +14,13 @@ def handle_client(client_socket):
         clients_request=client_socket.recv(constants.BUF_SIZE).decode()
         response_to_send=chose_response_to_message(clients_request)
         client_socket.send(response_to_send.encode())
-    print("requested game")
+
     added_to_search_queue=False
     while added_to_search_queue==False:
         if clients_sockets_queue_lock == constants.UNLOCKED:
             clients_sockets_queue_lock = constants.LOCKED
             clients_sockets_searching_for_game_queue.append(client_socket)
-            print("i'm stuck please unstuck me")
-            print(len(clients_sockets_searching_for_game_queue))
+
             added_to_search_queue=True
             clients_sockets_queue_lock = constants.UNLOCKED
 
@@ -95,12 +94,11 @@ def start_game_between_2_players():
 
 def chose_response_to_message_during_game(message):
     message_list=message.split("-")
-    print(message_list)
     message_code=message_list[0]
     other_player_board=''
     is_other_player_eating_apple=False
     if len(message_list)>1:
-        other_player_board = message_list[1]  # could be problems at the end of the game
+        other_player_board = message_list[1]
         is_other_player_eating_apple = message_list[2]
     match message_code:
         case constants.WON_GAME:
@@ -111,7 +109,6 @@ def chose_response_to_message_during_game(message):
 
         case constants.SEND_BOARD:
             return constants.SEND_BOARD+"-"+other_player_board+"-"+is_other_player_eating_apple
-    print("message code:",message_code)
 def chose_response_to_message(message):
     response=''
     message=message.split()
@@ -121,10 +118,12 @@ def chose_response_to_message(message):
         case constants.LOGIN:
             response=dbmanager.login(message[1],message[2])
         case constants.GET_STATS:
-            response=dbmanager.get_stats(message[1])
+            response=dbmanager.get_stats(message[1])+"3"
         case constants.REQUEST_GAME:
             response=constants.SEARCHING_FOR_PLAYERS
 
+    print("message from client:",message)
+    print("response to clients:",response)
     return response
 
 

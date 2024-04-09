@@ -189,6 +189,7 @@ def draw_stats_screen():
     current_screen = "stats"
 
     stats_text=get_users_stats().split(" ")[::2]
+    print("stats:",stats_text)
     stats_text=["rating:"+stats_text[0],"wins:"+stats_text[1],"loses:"+stats_text[2],"w/l:"+stats_text[3]]
 
     cur_text_y = FIRST_TEXT_OFFSET
@@ -200,13 +201,14 @@ def draw_stats_screen():
     draw_back_button()
 
 def get_users_stats():
-    response=""
+    response="4"
     try:
         socket_with_server.send(("3 "+session_username).encode())
-        response=socket_with_server.recv(1024).decode()
+        while response[-1]!=SEND_STATS:
+            response=socket_with_server.recv(BUF_SIZE).decode()
     except Exception as e:
         print(e)
-    return response
+    return response[:-1]
 
 def draw_back_button():
     pygame.draw.rect(gameDisplay,BUTTON_COLOR,BACK_BUTTON)
@@ -270,7 +272,7 @@ def multi_player():
     rival_player_eating_apple=False
     gameDisplay.fill(WHITE)
 
-    while player_board.snake_is_alive() and response!=WON_GAME and response!=LOST_GAME:
+    while player_board.snake_is_alive() and player_board.score<WINNING_SCORE:
         player_string_board=convert_board_to_string(player_board)
         is_player_snake_eating_apple=str(player_board.snake_eating_apple())
 
@@ -297,11 +299,14 @@ def multi_player():
 
         draw_board(player_board)
         draw_string_board(rival_string_board)
+
         draw_player_score(player_board,rival_player_score,"user69")
+
         pygame.display.update()
         pygame.event.pump()
-        last_snake_block=player_board.snake.get_last_block()
 
+
+        last_snake_block=player_board.snake.get_last_block()
         if last_snake_block.dir == "":
             if distance_between_blocks(player_board.snake.blocks[-2], last_snake_block) >= SQUARE_SIZE:
                 last_snake_block.turn(prev_dir)
@@ -309,18 +314,19 @@ def multi_player():
 
         pygame.time.delay(TIME_DELAY)
 
-    if player_board.snake_is_alive()==False:
+    text=""
+    if response==LOST_GAME:
+        text="you lost game"
+    elif response==WON_GAME:
+        text="you won game"
+    elif player_board.snake_is_alive()==False:
         socket_with_server.send(LOST_GAME.encode())
-    else:
+        text = "you lost game"
+    elif player_board.score==WINNING_SCORE:
         socket_with_server.send(WON_GAME.encode())
+        text = "you won game"
 
     pygame.draw.rect(gameDisplay, BACKGROUND_COLOR,[END_OF_GAME_BACKGROUND_X_OFFSET, END_OF_GAME_BACKGROUND_Y_OFFSET, END_OF_GAME_BACKGROUND_LENGTH, END_OF_GAME_BACKGROUND_HEIGHT])
-
-    text=""
-    if response==LOST_GAME or player_board.snake_is_alive()==False:
-        text="you lost game"
-    else:
-        text="you won game"
 
     end_of_game_text = font.render(text, True, TEXT_COLOR)
     gameDisplay.blit(end_of_game_text, (END_OF_GAME_TEXT_OFFSET_X, END_OF_GAME_TEXT_OFFSET_Y))
@@ -361,7 +367,6 @@ def convert_board_to_string(board):
 
 
 def draw_string_board(string_board):
-    print("enemy board ",string_board)
     color = 0
     for y in range(BOARD_HEIGHT):
         for x in range(BOARD_LENGTH):

@@ -55,7 +55,10 @@ def open_socket():
         thread.start()
 
 
-
+def get_username_from_socket(socket):
+    socket.send(constants.REQUEST_USERNAME.encode())
+    username=socket.recv(constants.BUF_SIZE).decode()
+    return username
 
 def start_game_between_2_players():
     print("started game")
@@ -66,8 +69,13 @@ def start_game_between_2_players():
 
     game_running=True
 
-    player_1_socket.send(constants.START_GAME.encode())
-    player_2_socket.send(constants.START_GAME.encode())
+    player_1_username=get_username_from_socket(player_1_socket)
+    player_2_username=get_username_from_socket(player_2_socket)
+
+    print(player_1_username, player_2_username)
+
+    player_1_socket.send(player_2_username.encode())
+    player_2_socket.send(player_1_username.encode())
 
     while game_running:
         message_from_board1 = player_1_socket.recv(constants.BUF_SIZE).decode()
@@ -118,7 +126,7 @@ def chose_response_to_message(message):
         case constants.LOGIN:
             response=dbmanager.login(message[1],message[2])
         case constants.GET_STATS:
-            response=dbmanager.get_stats(message[1])+"3"
+            response=dbmanager.get_stats(message[1])+constants.SEND_STATS
         case constants.REQUEST_GAME:
             response=constants.SEARCHING_FOR_PLAYERS
 

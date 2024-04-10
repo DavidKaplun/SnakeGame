@@ -248,6 +248,9 @@ def main():
         pygame.time.delay(TIME_DELAY)
 
 
+def is_valid_username(username):
+    return username.isalpha()
+
 def multi_player():
     gameDisplay.fill(WHITE)
 
@@ -259,21 +262,27 @@ def multi_player():
     current_screen = "multi player"
 
     socket_with_server.send(REQUEST_GAME.encode())
-    response = socket_with_server.recv(BUF_SIZE).decode()
+    response=""
 
-    if response == SEARCHING_FOR_PLAYERS:
-        print(session_username+" is searching for players")
+    while response != SEARCHING_FOR_PLAYERS:
+        response = socket_with_server.recv(BUF_SIZE).decode()
 
-    response = socket_with_server.recv(BUF_SIZE)#this is not to get a message. this is to wait until the server sends a signal that we can start
+    while response!=REQUEST_USERNAME:
+        response=socket_with_server.recv(BUF_SIZE).decode()
+
+
+    socket_with_server.send(session_username.encode())
+    rival_player_username = socket_with_server.recv(BUF_SIZE).decode()
 
     player_board=board(BOARD1_OFFSET_X, BOARD_OFFSET_Y, session_username)
     prev_dir=""
     rival_player_score=0
     rival_player_eating_apple=False
     rival_string_board=""
-    gameDisplay.fill(WHITE)
 
     while player_board.snake_is_alive() and player_board.score<WINNING_SCORE:
+
+
         player_string_board=convert_board_to_string(player_board)
         is_player_snake_eating_apple=str(player_board.snake_eating_apple())
 
@@ -298,15 +307,15 @@ def multi_player():
             rival_player_score+=1
             update_board(player_board)
 
+        gameDisplay.fill(WHITE)
         if rival_string_board!="":
             draw_board(player_board)
             draw_string_board(rival_string_board)
 
-        draw_player_score(player_board,rival_player_score,"user69")
+        draw_player_score(player_board,rival_player_score,rival_player_username)
 
         pygame.display.update()
-        pygame.event.pump()
-
+        check_keyboard_pressed_during_game(player_board)
 
         last_snake_block=player_board.snake.get_last_block()
         if last_snake_block.dir == "":

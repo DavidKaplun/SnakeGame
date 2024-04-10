@@ -270,6 +270,7 @@ def multi_player():
     prev_dir=""
     rival_player_score=0
     rival_player_eating_apple=False
+    rival_string_board=""
     gameDisplay.fill(WHITE)
 
     while player_board.snake_is_alive() and player_board.score<WINNING_SCORE:
@@ -281,7 +282,7 @@ def multi_player():
 
         if response[0]==SEND_BOARD:
             message_code,rival_string_board, rival_player_eating_apple=response.split("-")
-        else:
+        elif response==WON_GAME or response==LOST_GAME:
             break
 
         player_board.snake.move()
@@ -297,8 +298,9 @@ def multi_player():
             rival_player_score+=1
             update_board(player_board)
 
-        draw_board(player_board)
-        draw_string_board(rival_string_board)
+        if rival_string_board!="":
+            draw_board(player_board)
+            draw_string_board(rival_string_board)
 
         draw_player_score(player_board,rival_player_score,"user69")
 
@@ -311,7 +313,7 @@ def multi_player():
             if distance_between_blocks(player_board.snake.blocks[-2], last_snake_block) >= SQUARE_SIZE:
                 last_snake_block.turn(prev_dir)
 
-
+        rival_player_eating_apple=False
         pygame.time.delay(TIME_DELAY)
 
     text=""

@@ -122,8 +122,6 @@ def chose_response_to_message(message):
         case constants.REQUEST_GAME:
             response=constants.SEARCHING_FOR_PLAYERS
 
-    print("message from client:",message)
-    print("response to clients:",response)
     return response
 
 

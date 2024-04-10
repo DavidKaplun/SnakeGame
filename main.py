@@ -533,15 +533,15 @@ def respond_to_key_pressed(event):
 
 
 
-def check_keyboard_pressed_during_game(human_board):
+def check_keyboard_pressed_during_game(player_board):
     events = pygame.event.get()
     for event in events:
         if event.type == pygame.KEYDOWN:
-            respond_to_key_pressed_during_game(event.key,human_board)
+            respond_to_key_pressed_during_game(event.key, player_board)
 
 
-def respond_to_key_pressed_during_game(button_pressed,human_board):
-    cur_dir = human_board.snake.get_direction()
+def respond_to_key_pressed_during_game(button_pressed, player_board):
+    cur_dir = player_board.snake.get_direction()
     new_dir=""
     match button_pressed:
         case pygame.K_UP:
@@ -555,7 +555,7 @@ def respond_to_key_pressed_during_game(button_pressed,human_board):
         case _:
             return
 
-    human_board.snake.add_turn(new_dir)
+    player_board.snake.add_turn(new_dir)
 
 
 

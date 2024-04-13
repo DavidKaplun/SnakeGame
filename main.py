@@ -6,7 +6,7 @@ from board import *
 from constants import *
 from snake_bot import get_directions_to_apple
 import socket
-import re
+
 pygame.init()
 gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 gameDisplay.fill(WHITE)
@@ -114,10 +114,9 @@ def request_registration(username, password):
     try:
         socket_with_server.send(("1 " + username + " " + password).encode())
         response = socket_with_server.recv(1024).decode()
-        print("response is:",response)
+
     except Exception as e:
         print(e)
-    print("response is:", response)
     if response == SUCCESS:
         global session_username
         draw_main_menu()
@@ -189,8 +188,7 @@ def draw_stats_screen():
     current_screen = "stats"
 
     stats_text=get_users_stats().split(" ")[::2]
-    print("stats:",stats_text)
-    stats_text=["rating:"+stats_text[0],"wins:"+stats_text[1],"loses:"+stats_text[2],"w/l:"+stats_text[3]]
+    stats_text=["wins:"+stats_text[FIRST],"loses:"+stats_text[SECOND],"w/l ratio:"+stats_text[THIRD]+"%","rating:"+stats_text[FOURTH]]
 
     cur_text_y = FIRST_TEXT_OFFSET
     for line in stats_text:
@@ -248,23 +246,20 @@ def main():
         pygame.time.delay(TIME_DELAY)
 
 
-def is_valid_username(username):
-    return username.isalpha()
-
 def multi_player():
     gameDisplay.fill(WHITE)
 
     searching_for_players_text = font.render("searching for players...", True, TEXT_COLOR)
     gameDisplay.blit(searching_for_players_text, (SEARCHING_FOR_PLAYERS_OFFSET_X, SEARCHING_FOR_PLAYERS_OFFSET_Y))
-
     pygame.display.update()
+
     global current_screen
     current_screen = "multi player"
 
     socket_with_server.send(REQUEST_GAME.encode())
     response=""
 
-    while response != SEARCHING_FOR_PLAYERS:
+    while response != SEARCHING_FOR_PLAYERS:#sometimes you get an outdated response. the while loop is to ensure, it listens until it gets the last response from server
         response = socket_with_server.recv(BUF_SIZE).decode()
 
     while response!=REQUEST_USERNAME:
@@ -272,17 +267,16 @@ def multi_player():
 
 
     socket_with_server.send(session_username.encode())
-    rival_player_username = socket_with_server.recv(BUF_SIZE).decode()
+    rival_player_username, player_rank, rival_player_rank = socket_with_server.recv(BUF_SIZE).decode().split(" ")
 
     player_board=board(BOARD1_OFFSET_X, BOARD_OFFSET_Y, session_username)
+
     prev_dir=""
     rival_player_score=0
     rival_player_eating_apple=False
     rival_string_board=""
 
     while player_board.snake_is_alive() and player_board.score<WINNING_SCORE:
-
-
         player_string_board=convert_board_to_string(player_board)
         is_player_snake_eating_apple=str(player_board.snake_eating_apple())
 
@@ -292,6 +286,7 @@ def multi_player():
         if response[0]==SEND_BOARD:
             message_code,rival_string_board, rival_player_eating_apple=response.split("-")
         elif response==WON_GAME or response==LOST_GAME:
+            print(response)
             break
 
         player_board.snake.move()
@@ -312,7 +307,7 @@ def multi_player():
             draw_board(player_board)
             draw_string_board(rival_string_board)
 
-        draw_player_score(player_board,rival_player_score,rival_player_username)
+        draw_players_score(player_board, player_rank, rival_player_score,rival_player_username, rival_player_rank)#add a rank into this function
 
         pygame.display.update()
         check_keyboard_pressed_during_game(player_board)
@@ -337,26 +332,37 @@ def multi_player():
         socket_with_server.send(WON_GAME.encode())
         text = "you won game"
 
+    draw_end_of_multiplayer_game_screen(text)
+
+def draw_end_of_multiplayer_game_screen(text):
     pygame.draw.rect(gameDisplay, BACKGROUND_COLOR,[END_OF_GAME_BACKGROUND_X_OFFSET, END_OF_GAME_BACKGROUND_Y_OFFSET, END_OF_GAME_BACKGROUND_LENGTH, END_OF_GAME_BACKGROUND_HEIGHT])
 
     end_of_game_text = font.render(text, True, TEXT_COLOR)
     gameDisplay.blit(end_of_game_text, (END_OF_GAME_TEXT_OFFSET_X, END_OF_GAME_TEXT_OFFSET_Y))
 
     draw_end_of_game_buttons()
-    current_screen="end of multiplayer game"
+    global current_screen
+    current_screen = "end of multiplayer game"
 
-def draw_player_score(board,rival_score,rival_name):
+
+def draw_players_score(board, player_rank, rival_score,rival_name, rival_player_rank):
     name1 = font.render(session_username, True, TEXT_COLOR)
     gameDisplay.blit(name1, (BOARD1_NAME_OFFSET_X, SCORE_OFFSET_Y))
 
-    score1 = font.render(str(board.score), True, TEXT_COLOR)
+    score1 = font.render("score: "+str(board.score), True, TEXT_COLOR)
     gameDisplay.blit(score1, (BOARD1_SCORE_OFFSET_X, SCORE_OFFSET_Y))
+
+    rank1 = font.render("rating: " + player_rank, True, TEXT_COLOR)
+    gameDisplay.blit(rank1, (BOARD1_RANK_OFFSET_X, SCORE_OFFSET_Y))
 
     name2 = font.render(rival_name, True, TEXT_COLOR)
     gameDisplay.blit(name2, (BOARD2_NAME_OFFSET_X, SCORE_OFFSET_Y))
 
-    score2 = font.render(str(rival_score), True, TEXT_COLOR)
+    score2 = font.render("score: "+str(rival_score), True, TEXT_COLOR)
     gameDisplay.blit(score2, (BOARD2_SCORE_OFFSET_X, SCORE_OFFSET_Y))
+
+    rank2 = font.render("rating: " + rival_player_rank, True, TEXT_COLOR)
+    gameDisplay.blit(rank2, (BOARD2_RANK_OFFSET_X, SCORE_OFFSET_Y))
 
 def convert_board_to_string(board):
     board_string = ""
@@ -414,7 +420,7 @@ def single_player():
     draw_scores(human_board, bot_board)
     prev_dir1, prev_dir2="",""
     bot_board.snake.turn_sequence=get_directions_to_apple(bot_board.wall, bot_board.snake, bot_board.apple)
-    while human_board.snake_is_alive() and bot_board.snake_is_alive():
+    while human_board.snake_is_alive() and bot_board.snake_is_alive() and human_board.score<WINNING_SCORE and bot_board.score<WINNING_SCORE:
         human_board.snake.move()
         bot_board.snake.move()
 
@@ -464,7 +470,6 @@ def single_player():
                 last_snake2_block.turn(prev_dir2)
         pygame.time.delay(TIME_DELAY)
 
-    print("scores:",human_board.score,bot_board.score)
     current_screen = "end of game"
     draw_end_of_game_screen(human_board, bot_board)
 
@@ -476,7 +481,7 @@ def draw_end_of_game_screen(human_board,bot_board):
         if human_board.score<bot_board.score:
             text += "lost"
         else:
-            "won"
+            text+="won"
     elif human_board.snake_is_alive():
         text += "won"
     else:
@@ -668,7 +673,5 @@ def draw_wall(wall):
     if wall!=INCONSTRACTABLE:
         for block in wall:
             pygame.draw.rect(gameDisplay, WALL_COLOR, [block.x, block.y, SQUARE_SIZE, SQUARE_SIZE])
-
-#below only the functions related to wall
 
 main()

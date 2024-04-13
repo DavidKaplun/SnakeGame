@@ -1,50 +1,51 @@
-import constants
+from constants import *
+import constants#added this because some of the variables were giving me 'unreachable pattern error'
 import socket
 import threading
 import dbmanager
 import time
 
 clients_sockets_searching_for_game_queue=[]
-clients_sockets_queue_lock=constants.UNLOCKED
+clients_sockets_queue_lock=UNLOCKED
 
 def handle_client(client_socket):
     global clients_sockets_queue_lock
     clients_request=''
-    while clients_request!=constants.REQUEST_GAME:
-        clients_request=client_socket.recv(constants.BUF_SIZE).decode()
+    while clients_request!=REQUEST_GAME:
+        clients_request=client_socket.recv(BUF_SIZE).decode()
         response_to_send=chose_response_to_message(clients_request)
         client_socket.send(response_to_send.encode())
 
     added_to_search_queue=False
     while added_to_search_queue==False:
-        if clients_sockets_queue_lock == constants.UNLOCKED:
-            clients_sockets_queue_lock = constants.LOCKED
+        if clients_sockets_queue_lock == UNLOCKED:
+            clients_sockets_queue_lock = LOCKED
             clients_sockets_searching_for_game_queue.append(client_socket)
 
             added_to_search_queue=True
-            clients_sockets_queue_lock = constants.UNLOCKED
+            clients_sockets_queue_lock = UNLOCKED
 
         else:
-            time.sleep(constants.WAIT_TIME)
+            time.sleep(WAIT_TIME)
 
 def start_game():
     global clients_sockets_queue_lock
     while True:
         if len(clients_sockets_searching_for_game_queue) >= 2:
-            while clients_sockets_queue_lock == constants.LOCKED:
-                time.sleep(constants.WAIT_TIME)
-            clients_sockets_queue_lock = constants.LOCKED
+            while clients_sockets_queue_lock == LOCKED:
+                time.sleep(WAIT_TIME)
+            clients_sockets_queue_lock = LOCKED
             thread = threading.Thread(target=start_game_between_2_players, args=[])
             thread.start()
-            clients_sockets_queue_lock = constants.UNLOCKED
-        time.sleep(constants.WAIT_TIME)
+            clients_sockets_queue_lock = UNLOCKED
+        time.sleep(WAIT_TIME)
 
 
 def open_socket():
     server_running=True
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((constants.SERVER_IP, constants.SERVER_PORT))
-    server.listen(constants.MAX_QUEUE_LENGTH)
+    server.bind((SERVER_IP, SERVER_PORT))
+    server.listen(MAX_QUEUE_LENGTH)
 
     thread=threading.Thread(target=start_game, args=[])
     thread.start()
@@ -56,12 +57,15 @@ def open_socket():
 
 
 def get_username_from_socket(socket):
-    socket.send(constants.REQUEST_USERNAME.encode())
-    username=socket.recv(constants.BUF_SIZE).decode()
+    socket.send(REQUEST_USERNAME.encode())
+    username=socket.recv(BUF_SIZE).decode()
     return username
 
+def get_rank(username):
+    print(dbmanager.get_stats(username))
+    return dbmanager.get_stats(username).split(" ")[LAST]
+
 def start_game_between_2_players():
-    print("started game")
     global clients_sockets_searching_for_game_queue
 
     player_1_socket=clients_sockets_searching_for_game_queue.pop()
@@ -72,20 +76,31 @@ def start_game_between_2_players():
     player_1_username=get_username_from_socket(player_1_socket)
     player_2_username=get_username_from_socket(player_2_socket)
 
-    print(player_1_username, player_2_username)
+    player_1_rank=get_rank(player_1_username)
+    player_2_rank=get_rank(player_2_username)
 
-    player_1_socket.send(player_2_username.encode())
-    player_2_socket.send(player_1_username.encode())
+    print(player_1_rank,player_2_rank)
+
+    player_1_socket.send((player_2_username+" "+player_1_rank+" "+player_2_rank).encode())
+    player_2_socket.send((player_1_username+" "+player_2_rank+" "+player_1_rank).encode())
 
     while game_running:
-        message_from_board1 = player_1_socket.recv(constants.BUF_SIZE).decode()
-        message_from_board2 = player_2_socket.recv(constants.BUF_SIZE).decode()
+        message_from_board1 = player_1_socket.recv(BUF_SIZE).decode()
+        message_from_board2 = player_2_socket.recv(BUF_SIZE).decode()
 
         response_to_player_1 = chose_response_to_message_during_game(message_from_board2)
         response_to_player_2 = chose_response_to_message_during_game(message_from_board1)
 
-        if response_to_player_1[0]!=constants.SEND_BOARD or response_to_player_2[0]!=constants.SEND_BOARD:
-            game_running=False
+        if response_to_player_1==LOST_GAME or response_to_player_2==WON_GAME:
+            print('updated stats')
+            dbmanager.change_stats_after_game(player_1_username, LOST)
+            dbmanager.change_stats_after_game(player_2_username, WON)
+            game_running = False
+        elif response_to_player_2 == LOST_GAME or response_to_player_1 == WON_GAME:
+            print('updated stats')
+            dbmanager.change_stats_after_game(player_2_username, LOST)
+            dbmanager.change_stats_after_game(player_1_username, WON)
+            game_running = False
 
         player_1_socket.send(response_to_player_1.encode())
         player_2_socket.send(response_to_player_2.encode())
@@ -97,26 +112,25 @@ def start_game_between_2_players():
     thread2 = threading.Thread(target=handle_client, args=[player_2_socket])
     thread2.start()
 
-
-
-
 def chose_response_to_message_during_game(message):
     message_list=message.split("-")
     message_code=message_list[0]
     other_player_board=''
     is_other_player_eating_apple=False
+
     if len(message_list)>1:
         other_player_board = message_list[1]
         is_other_player_eating_apple = message_list[2]
+
     match message_code:
         case constants.WON_GAME:
             return constants.LOST_GAME
 
         case constants.LOST_GAME:
-            return constants.WON_GAME
+            return WON_GAME
 
         case constants.SEND_BOARD:
-            return constants.SEND_BOARD+"-"+other_player_board+"-"+is_other_player_eating_apple
+            return SEND_BOARD+"-"+other_player_board+"-"+is_other_player_eating_apple
 def chose_response_to_message(message):
     response=''
     message=message.split()
@@ -126,9 +140,9 @@ def chose_response_to_message(message):
         case constants.LOGIN:
             response=dbmanager.login(message[1],message[2])
         case constants.GET_STATS:
-            response=dbmanager.get_stats(message[1])+constants.SEND_STATS
-        case constants.REQUEST_GAME:
-            response=constants.SEARCHING_FOR_PLAYERS
+            response=dbmanager.get_stats(message[1])+SEND_STATS
+        case REQUEST_GAME:
+            response=SEARCHING_FOR_PLAYERS
 
     return response
 

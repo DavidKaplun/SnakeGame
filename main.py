@@ -29,7 +29,8 @@ def try_to_connect_to_server():
         socket_with_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_with_server.connect((SERVER_IP, SERVER_PORT))
     except Exception as e:
-        print(e)
+        socket_with_server=""
+        print(e)#the code to show the user its offline game now
 
 try_to_connect_to_server()
 
@@ -94,7 +95,7 @@ def request_login(username, password):
     response=-1
     try:
         socket_with_server.send(("2 "+username+" "+password).encode())
-        response=socket_with_server.recv(1024).decode()
+        response=socket_with_server.recv(BUF_SIZE).decode()
     except Exception as e:
         print(e)
 
@@ -113,7 +114,7 @@ def request_registration(username, password):
     response = -1
     try:
         socket_with_server.send(("1 " + username + " " + password).encode())
-        response = socket_with_server.recv(1024).decode()
+        response = socket_with_server.recv(BUF_SIZE).decode()
 
     except Exception as e:
         print(e)
@@ -238,7 +239,10 @@ def draw_background_recktangle():
 
 def main():
 
-    draw_login_page()
+    if socket_with_server!="":
+        draw_login_page()
+    else:
+        draw_main_menu()
 
     while True:
         pygame.display.update()
@@ -286,7 +290,6 @@ def multi_player():
         if response[0]==SEND_BOARD:
             message_code,rival_string_board, rival_player_eating_apple=response.split("-")
         elif response==WON_GAME or response==LOST_GAME:
-            print(response)
             break
 
         player_board.snake.move()
@@ -584,10 +587,16 @@ def on_mouse_button_down(event):
                 single_player()
 
             if MULTI_PLAYER_BUTTON.collidepoint(event.pos):
-                multi_player()
+                if socket_with_server=="":
+                    print("you are offline. cant play multiplayer at the moment")
+                else:
+                    multi_player()
 
             if MY_STATS_BUTTON.collidepoint(event.pos):
-                draw_stats_screen()
+                if socket_with_server=="":
+                    print("you are offline.to see your stats connect and login first")
+                else:
+                    draw_stats_screen()
 
             if RULES_BUTTON.collidepoint(event.pos):
                 draw_rules_screen()

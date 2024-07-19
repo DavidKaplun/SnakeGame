@@ -37,11 +37,12 @@ def change_stats_after_game(username, won_game):
 def create_table_if_does_not_exist():
     connection = sqlite3.connect("serverDB")
     cursor=connection.cursor()
-    cursor.execute('CREATE TABLE users (username text, password text, wins int, loses int, wlratio float, rank int)')
+    cursor.execute('CREATE TABLE IF NOT EXISTS users (username text, password text, wins int, loses int, wlratio float, rank int)')
     connection.commit()
     connection.close()
 
 def register(username, password):
+    create_table_if_does_not_exist()
     answer=SUCCESS
     connection = sqlite3.connect("serverDB")
     cursor = connection.cursor()
@@ -58,6 +59,7 @@ def register(username, password):
     return answer
 
 def login(username, password):
+    create_table_if_does_not_exist()
     answer = ERROR
     connection = sqlite3.connect("serverDB")
     cursor = connection.cursor()

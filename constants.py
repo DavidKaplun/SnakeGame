@@ -184,9 +184,10 @@ REQUEST_USERNAME='8'
 
 #server constants
 SERVER_PORT=6946
-SERVER_IP = '169.254.149.67'#could try this 109.186.219.134
+SERVER_IP = '172.232.207.67'
+
 MAX_QUEUE_LENGTH=10
-#the remotes server ip:172.105.103.219
+#the remotes server ip:172.232.207.67
 import socket
 hostname=socket.gethostname()
 print(socket.gethostbyname(hostname))

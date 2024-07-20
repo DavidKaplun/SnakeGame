@@ -281,6 +281,7 @@ def multi_player():
     rival_string_board=""
 
     while player_board.snake_is_alive() and player_board.score<WINNING_SCORE:
+        player_board.snake.move()
         player_string_board=convert_board_to_string(player_board)
         is_player_snake_eating_apple=str(player_board.snake_eating_apple())
 
@@ -292,7 +293,6 @@ def multi_player():
         elif response==WON_GAME or response==LOST_GAME:
             break
 
-        player_board.snake.move()
 
         if player_board.snake_eating_apple():
             prev_dir = player_board.snake.get_last_block().dir
@@ -301,6 +301,7 @@ def multi_player():
 
             player_board.score+=1
 
+        rival_player_eating_apple=rival_player_eating_apple=="True"
         if rival_player_eating_apple==True:
             rival_player_score+=1
             update_board(player_board)

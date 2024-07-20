@@ -190,7 +190,6 @@ MAX_QUEUE_LENGTH=10
 #the remotes server ip:172.232.207.67
 import socket
 hostname=socket.gethostname()
-print(socket.gethostbyname(hostname))
 #lock constants
 UNLOCKED=0
 LOCKED=1
